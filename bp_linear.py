@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-import numpy as np
-
 
 def target_func(w, b):
     x = 2 * w + 3 * b
