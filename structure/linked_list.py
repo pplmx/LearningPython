@@ -17,6 +17,17 @@ class LinkedList:
     def __init__(self):
         self.head = None
 
+    def is_empty(self):
+        return self.head is None
+
+    def length(self):
+        temp = self.head
+        idx = 0
+        while temp:
+            idx += 1
+            temp = temp.next
+        return idx
+
     def __repr__(self):
         temp = self.head
         p_str = ''
@@ -53,6 +64,7 @@ def test_singly_linked_list():
     n4.next = n5
 
     print(s_l_list)
+    print(s_l_list.length())
 
 
 if __name__ == '__main__':
