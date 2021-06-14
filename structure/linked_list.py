@@ -100,6 +100,19 @@ class SinglyLinkedList(LinkedList):
                 cur = cur.next
             cur.next = node
 
+    def reverse(self):
+        cur = self.head
+        pre = None
+        while cur:
+            next_one = cur.next
+            # for reverse, refer to from the next to the previous
+            cur.next = pre
+            # for the next loop, pre + 1, cur + 1
+            pre = cur
+            cur = next_one
+        # this time, the pre is the origin last one, set it to the head
+        self.head = pre
+
     def __iter__(self):
         cur = self.head
         while cur:
@@ -174,6 +187,11 @@ def test_singly_linked_list_insert():
     # verify the output whether it already was redefined
     print(s_l_list)
     print(s_l_list.length())
+
+    s_l_list.reverse()
+    print(s_l_list)
+    s_l_list.reverse()
+    print(s_l_list)
 
 
 if __name__ == '__main__':
