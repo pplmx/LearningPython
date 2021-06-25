@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import time
 
 
 class Apple(object):
@@ -50,6 +51,17 @@ class LOGGING:
         return wrapper
 
 
+def func_cost(func):
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        end = time.time()
+        print(f'Function {func.__name__} cost: {end - start}')
+        return result
+
+    return wrapper
+
+
 @debug
 def hello1():
     print('hello world')
@@ -70,10 +82,22 @@ def hello22():
     print('hello world')
 
 
+@func_cost
+def hello3():
+    print('hello world3')
+
+
+@func_cost
+def hello33(name):
+    print(f'hello world, {name}')
+
+
 if __name__ == '__main__':
     hello1()
     hello11()
     hello2()
     hello22()
+    hello3()
+    hello33('Yo')
     red_apple = Apple("red")
     print(red_apple)
