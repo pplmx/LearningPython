@@ -2,6 +2,6 @@
 aiofiles==0.7.0
 httptools==0.2.0
 multidict==5.1.0
-sanic==21.3.4
+sanic==21.6.0
 sanic-routing==0.7.0
 websockets==9.1
