@@ -88,12 +88,17 @@ class Horse(Animal):
     def is_alive(cls):
         return False
 
+    def cc():
+        return True
+
 
 if __name__ == '__main__':
     spotty = Dog("Spotty")
     mimi = Cat("Mimi")
     bee = Bird("Bee")
     hoo = Horse("Hoo")
+    print(type(Horse.cc), Horse.cc)
+    print()
     print(type(spotty.run), spotty.run)
     print(type(mimi.run), mimi.run)
     print(type(bee.run), bee.run)
