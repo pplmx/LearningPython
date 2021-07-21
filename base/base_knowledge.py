@@ -11,9 +11,9 @@ class Apple(object):
 
 # decorator without paras
 def debug(func):
-    def wrapper():
+    def wrapper(*args, **kwargs):
         print(f'Here is the function: {func.__name__}')
-        return func()
+        return func(*args, **kwargs)
 
     return wrapper
 
@@ -100,4 +100,6 @@ if __name__ == '__main__':
     hello3()
     hello33('Yo')
     red_apple = Apple("red")
+    logging('info')(hello33)("Tom")
+    debug(hello33)("Tom")
     print(red_apple)
