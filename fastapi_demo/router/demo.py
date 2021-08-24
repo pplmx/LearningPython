@@ -1,17 +1,18 @@
 from typing import Optional
 
-from fastapi import FastAPI
-from models import ModelName
+from fastapi import APIRouter
 
-app = FastAPI()
+from fastapi_demo.model import demo
+
+router = APIRouter()
 
 
-@app.get("/")
+@router.get("/")
 async def root():
     return {"message": "Hello World"}
 
 
-@app.get("/users/{user_id}/items/{item_id}")
+@router.get("/users/{user_id}/items/{item_id}")
 async def read_user_item(
     user_id: int, item_id: str, needy: str, q: Optional[str] = None, short: bool = False
 ):
@@ -34,9 +35,9 @@ async def read_user_item(
     return item
 
 
-@app.get("/models/{model_name}")
-async def get_model(model_name: ModelName):
-    if model_name == ModelName.alexnet:
+@router.get("/models/{model_name}")
+async def get_model(model_name: demo.ModelName):
+    if model_name == demo.ModelName.alexnet:
         return {"model_name": model_name, "message": "Deep Learning FTW!"}
 
     if model_name.value == "lenet":
