@@ -1,0 +1,3 @@
+[submodule "fastapi"]
+	path = fastapi
+	url = https://github.com/pplmx/LearningFastAPI.git
