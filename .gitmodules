@@ -1,7 +1,0 @@
-[submodule "fastapi_demo"]
-	path = fastapi_demo
-	url = https://github.com/pplmx/LearningFastAPI.git
-
-[submodule "django_demo"]
-	path = django_demo
-	url = https://github.com/pplmx/LearningDjango.git
