@@ -1,0 +1,6 @@
+[submodule "fstapi"]
+	path = fstapi
+	url = https://github.com/pplmx/LearningFastAPI.git
+[submodule "djgo"]
+	path = djgo
+	url = https://github.com/pplmx/LearningDjango.git
