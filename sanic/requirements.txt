@@ -1,7 +1,7 @@
 ## The following requirements were added by pip freeze:
 aiofiles==0.7.0
 httptools==0.3.0
-multidict==5.1.0
+multidict==5.2.0
 sanic==21.9.1
 sanic-routing==0.7.1
 websockets==10.0
