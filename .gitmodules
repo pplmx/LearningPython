@@ -4,3 +4,15 @@
 [submodule "djgo"]
 	path = djgo
 	url = https://github.com/pplmx/LearningDjango.git
+[submodule "machine_learning"]
+	path = machine_learning
+	url = https://github.com/pplmx/MachineLearning.git
+[submodule "learning_ai"]
+	path = learning_ai
+	url = https://github.com/pplmx/LearningAI.git
+[submodule "learning_algorithm"]
+	path = learning_algorithm
+	url = https://github.com/pplmx/LearningAlgorithm.git
+[submodule "mlia"]
+	path = mlia
+	url = https://github.com/pplmx/MLiA.git
