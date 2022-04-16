@@ -62,6 +62,11 @@ def func_cost(func):
     return wrapper
 
 
+def hello():
+    print('hello world')
+
+
+# @debug ==> debug(hello)
 @debug
 def hello1():
     print('hello world')
@@ -72,6 +77,7 @@ def hello11():
     print('hello world')
 
 
+# @logging('DEBUG') ==> logging('DEBUG')(hello)
 @logging('DEBUG')
 def hello2():
     print('hello world')
@@ -93,13 +99,21 @@ def hello33(name):
 
 
 if __name__ == '__main__':
-    hello1()
-    hello11()
-    hello2()
-    hello22()
-    hello3()
-    hello33('Yo')
-    red_apple = Apple("red")
-    logging('info')(hello33)("Tom")
-    debug(hello33)("Tom")
-    print(red_apple)
+    # hello1()
+    # hello11()
+    # hello2()
+    # hello22()
+    # hello3()
+    # hello33('Yo')
+    # red_apple = Apple("red")
+    # logging('info')(hello33)("Tom")
+    # debug(hello33)("Tom")
+    # print(red_apple)
+
+    # No Argument decorator
+    hello = debug(hello)
+    hello()
+
+    # Argument decorator
+    hello = logging("debug")(hello)
+    hello()
