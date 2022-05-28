@@ -68,6 +68,6 @@ def test_concurrent_futures_map():
 
 if __name__ == '__main__':
     # test_multiprocessing()
-    test_multiprocessing_map()
+    test_multiprocessing_map()  # except for this function, the others' time cost is similar, this guy is the slowest
     # test_concurrent_futures()
     # test_concurrent_futures_map()
