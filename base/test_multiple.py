@@ -69,10 +69,12 @@ def test_concurrent_futures_map(task_num: int, processes: int = os.cpu_count()):
 
 
 if __name__ == '__main__':
-    n = 10000
-    proc_num = os.cpu_count() + round(os.cpu_count() / 2)
+    n = 100000
+    proc_num = os.cpu_count()
     print(f'Tasks = {n}, Processes = {proc_num}')
     test_multiprocessing(n, proc_num)
     test_multiprocessing_map(n, proc_num)
-    test_concurrent_futures(n, proc_num)
+    # The following two solutions are not recommended, which is so slow.
     test_concurrent_futures_map(n, proc_num)
+    # When n = 10000000, this function ......
+    test_concurrent_futures(n, proc_num)
