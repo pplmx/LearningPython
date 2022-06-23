@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import functools
 import time
 
 
@@ -7,6 +8,46 @@ class Apple(object):
 
     def __init__(self, color):
         self.__color = color
+
+
+# 如果一个加上此装饰器的函数, 被调用三次; 则打印的数字会变成 3
+def count_func_call(func):
+    @functools.wraps(func)
+    def wrapper_count_calls(*args, **kwargs):
+        wrapper_count_calls.num_calls += 1
+        print(f"Call {wrapper_count_calls.num_calls} of {func.__name__!r}")
+        return func(*args, **kwargs)
+
+    wrapper_count_calls.num_calls = 0
+    return wrapper_count_calls
+
+
+# 所有加上此装饰器的函数, 每被调用一次, 打印的数字就会 +1
+def count_all_calls(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        count_all_calls.calls += 1
+        print(f'{count_all_calls.calls} calls of {func.__name__!r}')
+        return func(*args, **kwargs)
+
+    count_all_calls.calls = 0
+    return wrapper
+
+
+def debug_truth(func):
+    """Print the function signature and return value"""
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        args_repr = [repr(a) for a in args]  # 1
+        kwargs_repr = [f"{k}={v!r}" for k, v in kwargs.items()]  # 2
+        signature = ", ".join(args_repr + kwargs_repr)  # 3
+        print(f"Calling {func.__name__}({signature})")
+        ret = func(*args, **kwargs)
+        print(f"{func.__name__!r} returned {ret!r}")  # 4
+        return ret
+
+    return wrapper
 
 
 # decorator without paras
