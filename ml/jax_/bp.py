@@ -1,19 +1,19 @@
-import jax
-import jax.numpy as np
+import numpy as np
 
 
 class BPNN:
-    __k = jax.random.PRNGKey(0)
-
     def __init__(self, n_input, n_hidden, n_output):
         self.n_input = n_input
         self.n_hidden = n_hidden
         self.n_output = n_output
-        
-        self.weights = jax.random.normal(self.__k, (n_hidden, n_input))
-        self.bias = jax.random.normal(self.__k, n_hidden)
-        self.weights_output = jax.random.normal(self.__k, (n_output, n_hidden))
-        self.bias_output = jax.random.normal(self.__k, n_output)
+
+        self.weights = np.random.randn(n_hidden, n_input)
+        self.bias = np.random.randn(n_hidden)
+        self.weights_output = np.random.randn(n_output, n_hidden)
+        self.bias_output = np.random.randn(n_output)
+
+        self.input_correction = np.zeros(n_input)
+        self.hidden_correction = np.zeros(n_hidden)
 
     def forward(self, x):
         ...
