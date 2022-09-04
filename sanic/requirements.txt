@@ -1,5 +1,5 @@
 ## The following requirements were added by pip freeze:
-aiofiles==0.8.0
+aiofiles==22.1.0
 httptools==0.4.0
 multidict==6.0.2
 sanic==22.6.0
