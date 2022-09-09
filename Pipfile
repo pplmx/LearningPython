@@ -7,9 +7,10 @@ name = "tsinghua"
 numpy = "*"
 scipy = "*"
 scikit-learn = "*"
-pytest = "*"
 
 [dev-packages]
+pytest = "*"
+tox = "*"
 
 [requires]
 python_version = "3.10"
