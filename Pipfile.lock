@@ -18,11 +18,11 @@
     "default": {
         "joblib": {
             "hashes": [
-                "sha256:4158fcecd13733f8be669be0683b96ebdbbd38d23559f54dca7205aea1bf1e35",
-                "sha256:f21f109b3c7ff9d95f8387f752d0d9c34a02aa2f7060c2135f465da0e5160ff6"
+                "sha256:091138ed78f800342968c523bdde947e7a305b8594b910a0fea2ab83c3c6d385",
+                "sha256:e1cee4a79e4af22881164f218d4311f60074197fb707e082e803b61f6d137018"
             ],
-            "markers": "python_version >= '3.6'",
-            "version": "==1.1.0"
+            "index": "tsinghua",
+            "version": "==1.2.0"
         },
         "numpy": {
             "hashes": [
@@ -128,14 +128,6 @@
             ],
             "markers": "python_version >= '3.5'",
             "version": "==22.1.0"
-        },
-        "colorama": {
-            "hashes": [
-                "sha256:854bf444933e37f5824ae7bfc1e98d5bce2ebe4160d46b5edf346a89358e99da",
-                "sha256:e6c6b4334fc50988a639d9b98aa429a0b57da6e17b9a44f0451f930b6967b7a4"
-            ],
-            "markers": "sys_platform == 'win32'",
-            "version": "==0.4.5"
         },
         "distlib": {
             "hashes": [
