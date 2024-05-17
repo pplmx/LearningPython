@@ -8,14 +8,14 @@ class CustomDict:
         setattr(self, key, value)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     d = CustomDict()
-    d['x'] = 100
-    d['y'] = 200
+    d["x"] = 100
+    d["y"] = 200
     d[1] = 300
     d[(1, 2)] = 400
-    print(d['x'])
-    print(d['y'])
+    print(d["x"])
+    print(d["y"])
     print(d[1])
     print(d[(1, 2)])
     print(d[4])

@@ -16,26 +16,26 @@ def double_variable_right(w, b, target_z):
     while True:
         x, y, z = target_func(w, b)
         delta_z = z - target_z
-        print(f'weight={w}, bias={b}, Δz={delta_z}')
+        print(f"weight={w}, bias={b}, Δz={delta_z}")
         if abs(delta_z) < error:
             break
         idx += 1
         delta_w = 0.5 * delta_z / (2 * y)
         delta_b = 0.5 * delta_z / (3 * y + 2 * x)
-        print(f'Δw={delta_w}, Δb={delta_b}')
+        print(f"Δw={delta_w}, Δb={delta_b}")
         w -= delta_w
         b -= delta_b
 
-    print(f'''
+    print(f"""
 OUTPUT:
     weight = {w}
     bias = {b}
     Δz = {delta_z}
     Iterate times: {idx}
-    ''')
+    """)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     weight = 3
     bias = 4
     target = 150

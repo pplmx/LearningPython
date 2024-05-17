@@ -11,7 +11,6 @@ def fibonacci(idx):
 
 
 class Animal:
-
     @abstractmethod
     def run(self):
         raise NotImplementedError
@@ -26,13 +25,12 @@ class Animal:
 
 
 class Dog(Animal):
-
-    def __init__(self, name, gender='male'):
+    def __init__(self, name, gender="male"):
         self.__name = name
         self.__gender = gender
 
     def run(self):
-        print(f'Dog, {self.__name} runs fast.')
+        print(f"Dog, {self.__name} runs fast.")
 
     # @classmethod
     # def where_is(cls):
@@ -40,13 +38,12 @@ class Dog(Animal):
 
 
 class Cat(Animal):
-
-    def __init__(self, name, gender='female'):
+    def __init__(self, name, gender="female"):
         self.__name = name
         self.__gender = gender
 
     def run(self):
-        print(f'Cat, {self.__name} runs fast.')
+        print(f"Cat, {self.__name} runs fast.")
 
     # @classmethod
     # def where_is(cls):
@@ -54,13 +51,12 @@ class Cat(Animal):
 
 
 class Bird(Animal):
-
-    def __init__(self, name, gender='female'):
+    def __init__(self, name, gender="female"):
         self.__name = name
         self.__gender = gender
 
     def run(self):
-        print(f'Bird, {self.__name} flies fast.')
+        print(f"Bird, {self.__name} flies fast.")
 
     @classmethod
     def where_is(cls):
@@ -72,13 +68,12 @@ class Bird(Animal):
 
 
 class Horse(Animal):
-
-    def __init__(self, name, gender='female'):
+    def __init__(self, name, gender="female"):
         self.__name = name
         self.__gender = gender
 
     def run(self):
-        print(f'Horse, {self.__name} runs fast.')
+        print(f"Horse, {self.__name} runs fast.")
 
     @classmethod
     def where_is(cls):
@@ -92,7 +87,7 @@ class Horse(Animal):
         return True
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     spotty = Dog("Spotty")
     mimi = Cat("Mimi")
     bee = Bird("Bee")

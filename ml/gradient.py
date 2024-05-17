@@ -1,5 +1,5 @@
 def f(x, y):
-    return x ** 2 - y ** 2
+    return x**2 - y**2
 
 
 # 梯度是一个向量
@@ -27,6 +27,6 @@ def derivative_y(func, x, y):
     return (func(x, y + h / 2) - func(x, y - h / 2)) / h
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print(grad_f(144, 10))
     print(gradient(f, 144, 10))

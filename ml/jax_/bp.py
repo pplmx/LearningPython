@@ -15,11 +15,9 @@ class BPNN:
         self.input_correction = np.zeros(n_input)
         self.hidden_correction = np.zeros(n_hidden)
 
-    def forward(self, x):
-        ...
+    def forward(self, x): ...
 
-    def backward(self, x, y, learning_rate):
-        ...
+    def backward(self, x, y, learning_rate): ...
 
     def train(self, x, y, learning_rate):
         self.forward(x)
@@ -29,14 +27,16 @@ class BPNN:
         return self.forward(x)
 
     def save(self, filename):
-        np.savez(filename, self.weights, self.bias, self.weights_output, self.bias_output)
+        np.savez(
+            filename, self.weights, self.bias, self.weights_output, self.bias_output
+        )
 
     def load(self, filename):
         npz = np.load(filename)
-        self.weights = npz['arr_0']
-        self.bias = npz['arr_1']
-        self.weights_output = npz['arr_2']
-        self.bias_output = npz['arr_3']
+        self.weights = npz["arr_0"]
+        self.bias = npz["arr_1"]
+        self.weights_output = npz["arr_2"]
+        self.bias_output = npz["arr_3"]
 
     def __repr__(self):
-        return f'BPNN(n_input={self.n_input}, n_hidden={self.n_hidden}, n_output={self.n_output})'
+        return f"BPNN(n_input={self.n_input}, n_hidden={self.n_hidden}, n_output={self.n_output})"

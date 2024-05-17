@@ -6,19 +6,17 @@ from typing import Optional
 
 
 class Node:
-
     # Function to initialize the node object
     def __init__(self, data):
         self.data = data  # Assign data
         self.next = None  # Initialize next as null
 
     def __repr__(self):
-        return f'{self.data}'
+        return f"{self.data}"
 
 
 # Linked List class contains a Node object
 class LinkedList:
-
     # Function to initialize head
     def __init__(self):
         self.head = None
@@ -32,7 +30,6 @@ class LinkedList:
 
 
 class SinglyLinkedList(LinkedList):
-
     def __init__(self, to_linked: Optional[list] = None):
         """
 
@@ -122,19 +119,17 @@ class SinglyLinkedList(LinkedList):
 
     def __repr__(self):
         temp = self.head
-        p_str = ''
+        p_str = ""
         while temp:
-            p_str += f'{temp.data} -> '
+            p_str += f"{temp.data} -> "
             temp = temp.next
         return p_str[:-4]
 
 
-class DoublyLinkedList(LinkedList):
-    ...
+class DoublyLinkedList(LinkedList): ...
 
 
-class CircularLinkedList(LinkedList):
-    ...
+class CircularLinkedList(LinkedList): ...
 
 
 def test_singly_linked_list_push():
@@ -194,7 +189,7 @@ def test_singly_linked_list_insert():
     print(s_l_list)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_singly_linked_list_push()
     test_singly_linked_list_append()
     test_singly_linked_list_insert()

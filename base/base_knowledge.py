@@ -5,7 +5,6 @@ import time
 
 
 class Apple(object):
-
     def __init__(self, color):
         self.__color = color
 
@@ -27,7 +26,7 @@ def count_all_calls(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         count_all_calls.calls += 1
-        print(f'{count_all_calls.calls} calls of {func.__name__!r}')
+        print(f"{count_all_calls.calls} calls of {func.__name__!r}")
         return func(*args, **kwargs)
 
     count_all_calls.calls = 0
@@ -53,7 +52,7 @@ def debug_truth(func):
 # decorator without paras
 def debug(func):
     def wrapper(*args, **kwargs):
-        print(f'Here is the function: {func.__name__}')
+        print(f"Here is the function: {func.__name__}")
         return func(*args, **kwargs)
 
     return wrapper
@@ -64,7 +63,7 @@ class DEBUG:
         self.func = func
 
     def __call__(self, *args, **kwargs):
-        print(f'Here is the function: {self.func.__name__}')
+        print(f"Here is the function: {self.func.__name__}")
         return self.func(*args, **kwargs)
 
 
@@ -72,7 +71,7 @@ class DEBUG:
 def logging(level):
     def out_wrapper(func):
         def wrapper(*args, **kwargs):
-            print(f'[{level}] - Function {func.__name__}() is running.')
+            print(f"[{level}] - Function {func.__name__}() is running.")
             return func(*args, **kwargs)
 
         return wrapper
@@ -86,7 +85,7 @@ class LOGGING:
 
     def __call__(self, func):
         def wrapper(*args, **kwargs):
-            print(f'[{self.level}] - Function {func.__name__}() is running.')
+            print(f"[{self.level}] - Function {func.__name__}() is running.")
             return func(*args, **kwargs)
 
         return wrapper
@@ -97,49 +96,49 @@ def func_cost(func):
         start = time.time()
         result = func(*args, **kwargs)
         end = time.time()
-        print(f'Function {func.__name__} cost: {end - start}')
+        print(f"Function {func.__name__} cost: {end - start}")
         return result
 
     return wrapper
 
 
 def hello():
-    print('hello world')
+    print("hello world")
 
 
 # @debug ==> debug(hello)
 @debug
 def hello1():
-    print('hello world')
+    print("hello world")
 
 
 @DEBUG
 def hello11():
-    print('hello world')
+    print("hello world")
 
 
 # @logging('DEBUG') ==> logging('DEBUG')(hello)
-@logging('DEBUG')
+@logging("DEBUG")
 def hello2():
-    print('hello world')
+    print("hello world")
 
 
-@LOGGING('DEBUG')
+@LOGGING("DEBUG")
 def hello22():
-    print('hello world')
+    print("hello world")
 
 
 @func_cost
 def hello3():
-    print('hello world3')
+    print("hello world3")
 
 
 @func_cost
 def hello33(name):
-    print(f'hello world, {name}')
+    print(f"hello world, {name}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # hello1()
     # hello11()
     # hello2()

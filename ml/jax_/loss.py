@@ -18,7 +18,7 @@ def softmax(x):
 
 
 def relu_grad(x):
-    return 1. * (x > 0)
+    return 1.0 * (x > 0)
 
 
 def sigmoid_grad(x):
@@ -26,7 +26,7 @@ def sigmoid_grad(x):
 
 
 def tanh_grad(x):
-    return 1. - np.tanh(x) ** 2
+    return 1.0 - np.tanh(x) ** 2
 
 
 def cross_entropy(y_hat, y):

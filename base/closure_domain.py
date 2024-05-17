@@ -19,6 +19,6 @@ def make_printer():
     return printer
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     t = make_printer()
     t()

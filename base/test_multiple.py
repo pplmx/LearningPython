@@ -10,7 +10,7 @@ def time_cost(func):
         begin = time.time()
         res = func(*args, **kwargs)
         end = time.time()
-        print(f'{func.__name__} cost {round(end - begin, 2)} seconds')
+        print(f"{func.__name__} cost {round(end - begin, 2)} seconds")
         return res
 
     return wrapper
@@ -68,10 +68,10 @@ def test_concurrent_futures_map(task_num: int, processes: int = os.cpu_count()):
         executor.map(f, range(task_num))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     n = 100000
     proc_num = os.cpu_count()
-    print(f'Tasks = {n}, Processes = {proc_num}')
+    print(f"Tasks = {n}, Processes = {proc_num}")
     test_multiprocessing(n, proc_num)
     test_multiprocessing_map(n, proc_num)
     # The following two solutions are not recommended, which is so slow.

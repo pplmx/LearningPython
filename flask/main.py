@@ -8,33 +8,33 @@ app = Flask(__name__)
 app.wsgi_app = OperationLogMiddleware(app.wsgi_app)
 
 
-@app.route('/')
+@app.route("/")
 def hello_world():
-    return 'Hello World'
+    return "Hello World"
 
 
-@app.route('/hello/<name>')
+@app.route("/hello/<name>")
 def hello(name: str):
-    return f'Hello {name}!'
+    return f"Hello {name}!"
 
 
-@app.route('/apply/<name>')
+@app.route("/apply/<name>")
 def hello_redirect(name: str):
-    if name == 'admin':
-        return redirect(url_for('hello_admin'))
+    if name == "admin":
+        return redirect(url_for("hello_admin"))
     else:
-        return redirect(url_for('hello_guest', guest=name))
+        return redirect(url_for("hello_guest", guest=name))
 
 
-@app.route('/admin')
+@app.route("/admin")
 def hello_admin():
-    return 'Hello Admin'
+    return "Hello Admin"
 
 
-@app.route('/guest/<guest>')
+@app.route("/guest/<guest>")
 def hello_guest(guest):
-    return f'Hello {guest} as Guest'
+    return f"Hello {guest} as Guest"
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)

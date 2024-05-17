@@ -18,47 +18,47 @@ def long_time_task(name: str) -> None:
     """
     A function to be run in a process, who needs much time to finish.
     """
-    print(f'Run task {name}[{os.getpid()}]...')
+    print(f"Run task {name}[{os.getpid()}]...")
     start = time.time()
     time.sleep(random.random() * 3)
     cost = time.time() - start
-    print(f'Task {name} runs {cost:.2f} seconds.')
+    print(f"Task {name} runs {cost:.2f} seconds.")
 
 
 def test_multiprocess():
     """
     Test multiprocessing.
     """
-    print('Parent process %s.' % os.getpid())
+    print("Parent process %s." % os.getpid())
     p = Pool(4)
     for i in range(5):
         p.apply_async(long_time_task, args=(i,))
-    print('Waiting for all subprocesses done...')
+    print("Waiting for all subprocesses done...")
     p.close()
     p.join()
-    print('All subprocesses done.')
+    print("All subprocesses done.")
 
 
 def write(q: Queue) -> None:
     """
     Write data to a queue.
     """
-    print(f'Process[{os.getpid()}] start to write...')
-    for v in ['A', 'B', 'C']:
+    print(f"Process[{os.getpid()}] start to write...")
+    for v in ["A", "B", "C"]:
         q.put(v)
-        print(f'Put {v} to queue...')
+        print(f"Put {v} to queue...")
         time.sleep(random.random())
-    print(f'Process[{os.getpid()}] to write done.')
+    print(f"Process[{os.getpid()}] to write done.")
 
 
 def read(q: Queue) -> None:
     """
     Read data from a queue.
     """
-    print(f'Process[{os.getpid()}] start to read...')
+    print(f"Process[{os.getpid()}] start to read...")
     while True:
         value = q.get(True)
-        print(f'Get {value} from queue...')
+        print(f"Get {value} from queue...")
 
 
 def test_communication_among_processes():
@@ -74,6 +74,6 @@ def test_communication_among_processes():
     pr.terminate()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # test_multiprocess()
     test_communication_among_processes()

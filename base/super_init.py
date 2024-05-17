@@ -1,6 +1,6 @@
 class Animal:
     def __init__(self):
-        self.color = 'black'
+        self.color = "black"
 
 
 class Cat(Animal):
@@ -18,7 +18,7 @@ class Engine:
 class Skeleton:
     def __init__(self):
         super().__init__()
-        self.shape = 'Rectangle'
+        self.shape = "Rectangle"
 
 
 class Car(Engine, Skeleton):
@@ -30,7 +30,7 @@ class Car(Engine, Skeleton):
         print(self.shape)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     BMW = Car()
     BMW.deliver()
     ci = Cat()

@@ -16,7 +16,7 @@ class Single:
         return obj
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     s1 = Singleton()
     s2 = Singleton()
     s3 = Singleton()

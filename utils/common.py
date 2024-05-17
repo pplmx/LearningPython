@@ -7,7 +7,7 @@ def time_cost(func):
         start = time.time()
         result = func(*args, **kwargs)
         end = time.time()
-        print(f'Cost: {end - start}s')
+        print(f"Cost: {end - start}s")
         return result
 
     return wrapper
@@ -19,7 +19,7 @@ def time_cost_ns(func):
         start = time.time_ns()
         result = func(*args, **kwargs)
         end = time.time_ns()
-        print(f'Cost: {end - start}ns')
+        print(f"Cost: {end - start}ns")
         return result
 
     return wrapper

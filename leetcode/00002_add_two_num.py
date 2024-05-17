@@ -63,9 +63,9 @@ class Solution:
         return dummy.next
 
 
-if __name__ == '__main__':
-    num1 = str_no2list_node('969')
-    num2 = str_no2list_node('345')
+if __name__ == "__main__":
+    num1 = str_no2list_node("969")
+    num2 = str_no2list_node("345")
     s = Solution()
     total = s.add_two_numbers(num1, num2)
     print(list_node2str_no(total))

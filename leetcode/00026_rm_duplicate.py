@@ -26,7 +26,7 @@ class Solution:
         return ret_len
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     s = Solution()
     arr = [1, 1, 1, 1, 2]
     length = s.normal_rm_duplica(arr)

@@ -7,10 +7,10 @@ from sanic.response import json
 app = Sanic("My Hello, world app")
 
 
-@app.route('/')
+@app.route("/")
 async def test(request):
-    return json({'hello': 'world'})
+    return json({"hello": "world"})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run()
