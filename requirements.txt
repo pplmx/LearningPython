@@ -48,7 +48,7 @@ numpy==1.26.4
     #   scipy
 opt-einsum==3.3.0
     # via jax
-packaging==24.0
+packaging==24.1
     # via
     #   pyproject-api
     #   pytest
