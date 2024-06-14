@@ -22,6 +22,10 @@ ruff:
 	@ruff format
 	@ruff check --fix --unsafe-fixes --select I
 
+# start jupyter lab
+lab:
+	@jupyter lab
+
 # lock
 lock:
 	@# if pyproject.toml exists, use it to lock dependencies
