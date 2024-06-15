@@ -65,7 +65,7 @@ distlib==0.3.8
     # via virtualenv
 executing==2.0.1
     # via stack-data
-fastjsonschema==2.19.1
+fastjsonschema==2.20.0
     # via nbformat
 filelock==3.14.0
     # via
