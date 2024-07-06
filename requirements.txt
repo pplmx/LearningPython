@@ -28,7 +28,7 @@ blinker==1.8.2
     # via flask
 cachetools==5.3.3
     # via tox
-certifi==2024.6.2
+certifi==2024.7.4
     # via
     #   httpcore
     #   httpx
