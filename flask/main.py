@@ -1,7 +1,7 @@
-from flask import Flask, url_for
+from middleware.operation_log import OperationLogMiddleware
 from werkzeug.utils import redirect
 
-from middleware.operation_log import OperationLogMiddleware
+from flask import Flask, url_for
 
 app = Flask(__name__)
 # add the custom middleware

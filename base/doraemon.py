@@ -58,31 +58,33 @@ def animate_doraemon(image_path, num_frames=200):
     c = calculate_fourier_coefficients(points, N)
 
     fig, ax = plt.subplots(figsize=(8, 8))
-    line, = ax.plot([], [], lw=2)
-    ax.axis('equal')
+    (line,) = ax.plot([], [], lw=2)
+    ax.axis("equal")
     ax.set_xlim(-300, 300)
     ax.set_ylim(-300, 300)
-    ax.set_title('Doraemon using Fourier Series')
+    ax.set_title("Doraemon using Fourier Series")
 
     def init():
         line.set_data([], [])
-        return line,
+        return (line,)
 
     def update(frame):
         k_max = 1 + frame * (N // 2) // num_frames
         reconstructed_curve = reconstruct_curve(c, N, k_max=k_max)
         line.set_data(reconstructed_curve.real, reconstructed_curve.imag)
-        return line,
+        return (line,)
 
-    anim = FuncAnimation(fig, update, frames=num_frames, init_func=init, blit=True, repeat=False)
+    anim = FuncAnimation(
+        fig, update, frames=num_frames, init_func=init, blit=True, repeat=False
+    )
     plt.show()
 
     return anim
 
 
 # 主程序
-if __name__ == '__main__':
-    image_path = 'doraemon.png'
+if __name__ == "__main__":
+    image_path = "doraemon.png"
 
     # 检查图像加载是否正确
     try:
@@ -90,8 +92,8 @@ if __name__ == '__main__':
         if image is not None:
             print(f"Successfully loaded image: {image_path}")
             plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-            plt.title('Loaded Image')
-            plt.axis('off')
+            plt.title("Loaded Image")
+            plt.axis("off")
             plt.show()
         else:
             print(f"Failed to load image: {image_path}")
@@ -103,9 +105,9 @@ if __name__ == '__main__':
         points = extract_contour_points(image_path)
         if len(points) > 0:
             print("Successfully extracted contour points")
-            plt.plot(points.real, points.imag, 'o', markersize=1)
-            plt.title('Extracted Contour Points')
-            plt.axis('equal')
+            plt.plot(points.real, points.imag, "o", markersize=1)
+            plt.title("Extracted Contour Points")
+            plt.axis("equal")
             plt.show()
         else:
             print("No contour points extracted")

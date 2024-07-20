@@ -2,7 +2,7 @@
 import os
 import random
 import time
-from multiprocessing import Pool, Queue, Process
+from multiprocessing import Pool, Process, Queue
 
 
 # create a multiprocessing pool

@@ -1,8 +1,8 @@
 def debug(func):
     def wrapper(*args, **kwargs):
-        print('Before the calling of the func')
+        print("Before the calling of the func")
         ret = func(*args, **kwargs)
-        print('After the calling of the func')
+        print("After the calling of the func")
         return ret
 
     return wrapper
@@ -11,9 +11,9 @@ def debug(func):
 def log(level):
     def out_wrapper(func):
         def inner_wrapper(*args, **kwargs):
-            print(f'[{level}] Before the calling of the func')
+            print(f"[{level}] Before the calling of the func")
             ret = func(*args, **kwargs)
-            print(f'[{level}] After the calling of the func')
+            print(f"[{level}] After the calling of the func")
             return ret
 
         return inner_wrapper
@@ -26,9 +26,9 @@ class DEBUG:
         self.func = func
 
     def __call__(self, *args, **kwargs):
-        print('Before the calling of the func')
+        print("Before the calling of the func")
         ret = self.func(*args, **kwargs)
-        print('After the calling of the func')
+        print("After the calling of the func")
         return ret
 
 
@@ -38,9 +38,9 @@ class LOG:
 
     def __call__(self, func):
         def wrapper(*args, **kwargs):
-            print(f'[{self.level}] Before the calling of the func')
+            print(f"[{self.level}] Before the calling of the func")
             ret = func(*args, **kwargs)
-            print(f'[{self.level}] After the calling of the func')
+            print(f"[{self.level}] After the calling of the func")
             return ret
 
         return wrapper
@@ -48,29 +48,29 @@ class LOG:
 
 @debug
 def hi():
-    print('hi')
+    print("hi")
 
 
-@log('INFO')
+@log("INFO")
 def hello():
-    print('hello')
+    print("hello")
 
 
 @DEBUG
 def example():
-    print('example')
+    print("example")
 
 
-@LOG('DEBUG')
+@LOG("DEBUG")
 def sample():
-    print('sample')
+    print("sample")
 
 
 def happy():
-    print('happy')
+    print("happy")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     hi()
     hello()
 
@@ -78,11 +78,11 @@ if __name__ == '__main__':
     sample()
 
     # call it directly
-    print('======= call it directly using func')
+    print("======= call it directly using func")
     debug(happy)()
-    log('XXX')(happy)()
+    log("XXX")(happy)()
 
     # call with class
-    print('======= call it directly using class')
+    print("======= call it directly using class")
     DEBUG(happy)()
-    LOG('ZZZ')(happy)()
+    LOG("ZZZ")(happy)()
