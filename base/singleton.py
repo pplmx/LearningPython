@@ -46,7 +46,7 @@ if __name__ == "__main__":
     print(s3.shared_attr)
     print(s3.shared_func(3))
     print(s1 is s2)  # False, 这是 Borg's Singleton, 每个实例都是新的, 只是状态是共享的
-    print(s1.__class__)  # True
+    print(type(Singleton)) # <class 'type'>
 
     instance1 = SingletonClass(10)
     instance2 = SingletonClass(20)
@@ -55,4 +55,4 @@ if __name__ == "__main__":
     instance2.display_value()  # 也输出: The value is: 10
 
     print(instance1 is instance2)  # 输出: True
-    print(instance1.__class__)
+    print(type(SingletonClass)) # <class '__main__.SingletonMeta'>
