@@ -329,7 +329,7 @@ tornado==6.4.1
     #   jupyter-server
     #   jupyterlab
     #   terminado
-tox==4.15.0
+tox==4.23.1
 traitlets==5.14.3
     # via
     #   comm
