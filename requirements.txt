@@ -101,7 +101,7 @@ isoduration==20.11.0
     # via jsonschema
 itsdangerous==2.2.0
     # via flask
-jax==0.4.28
+jax==0.4.35
 jaxlib==0.4.28
 jedi==0.19.1
     # via ipython
