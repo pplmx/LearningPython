@@ -102,7 +102,7 @@ isoduration==20.11.0
 itsdangerous==2.2.0
     # via flask
 jax==0.4.28
-jaxlib==0.4.28
+jaxlib==0.4.35
 jedi==0.19.1
     # via ipython
 jinja2==3.1.4
