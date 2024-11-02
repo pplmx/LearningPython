@@ -189,7 +189,7 @@ nest-asyncio==1.6.0
     # via ipykernel
 notebook-shim==0.2.4
     # via jupyterlab
-numpy==1.26.4
+numpy==2.1.3
     # via
     #   contourpy
     #   jax
