@@ -205,7 +205,7 @@ opt-einsum==3.3.0
     # via jax
 overrides==7.7.0
     # via jupyter-server
-packaging==24.0
+packaging==24.2
     # via
     #   ipykernel
     #   jupyter-server
