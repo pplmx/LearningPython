@@ -1,14 +1,29 @@
+from typing import Union
+
 ANNUAL_INTEREST_RATES = {3: 0.0215, 5: 0.02}
 
+def calculate_interest(deposit: float = 170000, term_years: int = 3, has_extra_sufficient_funds: bool = False) -> float:
+    """
+    Calculate the total interest for a given deposit and term.
 
-def calculate_interest(deposit=170000, term_years=3, has_extra_sufficient_funds=False):
+    Args:
+        deposit (float): The initial deposit amount.
+        term_years (int): The term of the deposit in years.
+        has_extra_sufficient_funds (bool): Whether there are extra sufficient funds.
+
+    Returns:
+        float: The total interest earned.
+    """
+    if term_years not in ANNUAL_INTEREST_RATES:
+        raise ValueError(f"Term of {term_years} years is not supported.")
+
     annual_rate = ANNUAL_INTEREST_RATES[term_years]
 
+    # If there are extra sufficient funds, simply calculate the interest based on the annual rate
     if has_extra_sufficient_funds:
-        # 如果有额外充足资金，简单按年利率计算
         return deposit * annual_rate * term_years
 
-    # 否则，按月分期计算
+    # Otherwise, calculate the interest by breaking it down into monthly payments
     monthly_rate = annual_rate / 12
     monthly_payment = deposit / (term_years * 12)
     total_interest = 0
