@@ -21,6 +21,7 @@ def calculate_interest(deposit: float = 170000, term_years: int = 3, has_extra_s
 
     # If there are extra sufficient funds, simply calculate the interest based on the annual rate
     if has_extra_sufficient_funds:
+        print(f"Deposit {deposit:.0f}, {term_years}-year interest with extra sufficient funds: {deposit * annual_rate * term_years:.2f}")
         return deposit * annual_rate * term_years
 
     # Otherwise, calculate the interest by breaking it down into monthly payments
@@ -31,13 +32,14 @@ def calculate_interest(deposit: float = 170000, term_years: int = 3, has_extra_s
     for profitable_months in range(1, term_years * 12 + 1):
         total_interest += monthly_payment * monthly_rate * profitable_months
 
+    print(f"Deposit {deposit:.0f}, {term_years}-year interest: {total_interest:.2f}")
+
     return total_interest
 
 
 if __name__ == '__main__':
-    my_deposit = 170000
+    calculate_interest()
+    calculate_interest(has_extra_sufficient_funds=True)
 
-    print(f"3-year interest: {calculate_interest(my_deposit, 3):.2f}")
-    print(f"3-year interest with extra sufficient funds: {calculate_interest(my_deposit, 3, True):.2f}")
-    print(f"5-year interest: {calculate_interest(my_deposit, 5):.2f}")
-    print(f"5-year interest with extra sufficient funds: {calculate_interest(my_deposit, 5, True):.2f}")
+    calculate_interest(term_years=5)
+    calculate_interest(term_years=5, has_extra_sufficient_funds=True)
