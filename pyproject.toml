@@ -3,4 +3,28 @@ name = "learning_python"
 version = "0.1.0"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "matplotlib>=3.10.0",
+    "torch>=2.5.1",
+    "torchvision>=0.20.1",
+]
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cpu", marker = "platform_system == 'Windows'" },
+    { index = "pytorch-cu124", marker = "platform_system == 'Linux'" },
+]
+torchvision = [
+    { index = "pytorch-cpu", marker = "platform_system == 'Windows'" },
+    { index = "pytorch-cu124", marker = "platform_system == 'Linux'" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu124"
+url = "https://download.pytorch.org/whl/cu124"
+explicit = true
