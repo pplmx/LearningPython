@@ -60,5 +60,5 @@ def layer_norm_demo():
     print(output[0, 0])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     layer_norm_demo()

@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 
 
-class ScheduledOptim():
+class ScheduledOptim:
     """
     实现 Transformer 论文中的学习率调度器
     """
@@ -28,7 +28,7 @@ class ScheduledOptim():
         """计算学习率缩放因子"""
         return min(
             math.sqrt(1.0 / max(1, self.current_steps)),
-            math.sqrt(self.current_steps / max(1, self.warmup_steps ** 3))
+            math.sqrt(self.current_steps / max(1, self.warmup_steps**3)),
         ) * math.sqrt(self.d_model)
 
     def _update_learning_rate(self):
@@ -37,7 +37,7 @@ class ScheduledOptim():
         lr = self._get_lr_scale()
 
         for param_group in self.optimizer.param_groups:
-            param_group['lr'] = lr
+            param_group["lr"] = lr
 
 
 class LabelSmoothing(nn.Module):
@@ -48,7 +48,7 @@ class LabelSmoothing(nn.Module):
 
     def __init__(self, size, padding_idx, smoothing=0.0):
         super().__init__()
-        self.criterion = nn.KLDivLoss(reduction='sum')
+        self.criterion = nn.KLDivLoss(reduction="sum")
         self.padding_idx = padding_idx
         self.confidence = 1.0 - smoothing
         self.smoothing = smoothing
@@ -82,14 +82,14 @@ def training_tools_demo():
     scheduler = ScheduledOptim(
         optimizer=optimizer,
         d_model=512,  # 假设模型维度为512
-        warmup_steps=4000
+        warmup_steps=4000,
     )
 
     # 创建标签平滑
     criterion = LabelSmoothing(
         size=5,  # 输出维度
         padding_idx=0,  # padding的索引
-        smoothing=0.1  # 平滑系数
+        smoothing=0.1,  # 平滑系数
     )
 
     # 模拟训练过程
@@ -115,8 +115,10 @@ def training_tools_demo():
 
         # 打印训练信息
         if epoch % 1 == 0:
-            print(f'Epoch: {epoch}, Loss: {loss.item():.4f}, '
-                  f'LR: {scheduler.optimizer.param_groups[0]["lr"]:.6f}')
+            print(
+                f'Epoch: {epoch}, Loss: {loss.item():.4f}, '
+                f'LR: {scheduler.optimizer.param_groups[0]["lr"]:.6f}'
+            )
 
 
 if __name__ == "__main__":

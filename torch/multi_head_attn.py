@@ -31,7 +31,7 @@ def multi_head_attention_demo():
     multi_head_attn = nn.MultiheadAttention(
         embed_dim=hidden_size,
         num_heads=num_heads,
-        batch_first=False  # 如果为True，则输入形状应为 (batch_size, sequence_length, hidden_size)
+        batch_first=False,  # 如果为True，则输入形状应为 (batch_size, sequence_length, hidden_size)
     )
 
     # 前向传播
@@ -39,9 +39,7 @@ def multi_head_attention_demo():
     # output shape: (sequence_length, batch_size, hidden_size)
     # attention_weights shape: (batch_size, sequence_length, sequence_length)
     output, attention_weights = multi_head_attn(
-        query=input_tensor,
-        key=input_tensor,
-        value=input_tensor
+        query=input_tensor, key=input_tensor, value=input_tensor
     )
 
     print(f"\nOutput shape: {output.shape}")
@@ -63,5 +61,5 @@ def multi_head_attention_demo():
     print(attention_weights[0, :3, :3])  # batch_idx=0，显示3x3的部分
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     multi_head_attention_demo()

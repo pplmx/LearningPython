@@ -12,11 +12,13 @@ class EncoderLayer(nn.Module):
     4. 残差连接
     """
 
-    def __init__(self,
-                 d_model: int = 512,
-                 num_heads: int = 8,
-                 d_ff: int = 2048,
-                 dropout: float = 0.1):
+    def __init__(
+        self,
+        d_model: int = 512,
+        num_heads: int = 8,
+        d_ff: int = 2048,
+        dropout: float = 0.1,
+    ):
         """
         参数:
             d_model: 模型维度
@@ -28,10 +30,7 @@ class EncoderLayer(nn.Module):
 
         # 多头注意力层
         self.self_attn = nn.MultiheadAttention(
-            embed_dim=d_model,
-            num_heads=num_heads,
-            dropout=dropout,
-            batch_first=True
+            embed_dim=d_model, num_heads=num_heads, dropout=dropout, batch_first=True
         )
 
         # 前馈神经网络
@@ -39,7 +38,7 @@ class EncoderLayer(nn.Module):
             nn.Linear(d_model, d_ff),
             nn.ReLU(),
             nn.Dropout(dropout),
-            nn.Linear(d_ff, d_model)
+            nn.Linear(d_ff, d_model),
         )
 
         # Layer Normalization 层
@@ -79,12 +78,7 @@ def encoder_layer_demo():
     d_model = 512
 
     # 创建编码器层
-    encoder = EncoderLayer(
-        d_model=d_model,
-        num_heads=8,
-        d_ff=2048,
-        dropout=0.1
-    )
+    encoder = EncoderLayer(d_model=d_model, num_heads=8, d_ff=2048, dropout=0.1)
 
     # 创建输入张量
     x = torch.randn(batch_size, seq_length, d_model)
@@ -93,7 +87,7 @@ def encoder_layer_demo():
     # 创建掩码（可选）
     # 这里创建一个简单的填充掩码，假设序列后半部分是填充的
     mask = torch.ones(batch_size, seq_length)
-    mask[:, seq_length // 2:] = 0
+    mask[:, seq_length // 2 :] = 0
     print("\nMask shape:", mask.shape)
     print("Mask (1表示有效位置，0表示填充位置):")
     print(mask)
@@ -114,5 +108,5 @@ def encoder_layer_demo():
     print(f"Trainable parameters: {trainable_params}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     encoder_layer_demo()

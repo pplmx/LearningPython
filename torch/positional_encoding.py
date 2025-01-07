@@ -1,7 +1,9 @@
+import math
+
+import matplotlib.pyplot as plt
+
 import torch
 import torch.nn as nn
-import math
-import matplotlib.pyplot as plt
 
 
 class PositionalEncoding(nn.Module):
@@ -38,7 +40,7 @@ class PositionalEncoding(nn.Module):
         pe = pe.unsqueeze(0)
 
         # 将位置编码注册为缓冲区（不参与训练）
-        self.register_buffer('pe', pe)
+        self.register_buffer("pe", pe)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -47,7 +49,7 @@ class PositionalEncoding(nn.Module):
         返回:
             添加了位置编码的张量，形状与输入相同
         """
-        return x + self.pe[:, :x.size(1)]
+        return x + self.pe[:, : x.size(1)]
 
 
 def visualize_positional_encoding():
@@ -64,11 +66,11 @@ def visualize_positional_encoding():
 
     # 创建热力图
     plt.figure(figsize=(10, 8))
-    plt.imshow(pe, cmap='viridis', aspect='auto')
+    plt.imshow(pe, cmap="viridis", aspect="auto")
     plt.colorbar()
-    plt.xlabel('Dimension')
-    plt.ylabel('Position')
-    plt.title('Positional Encoding Values')
+    plt.xlabel("Dimension")
+    plt.ylabel("Position")
+    plt.title("Positional Encoding Values")
     plt.show()
 
 
@@ -101,7 +103,7 @@ def positional_encoding_demo():
     print((output - x)[0])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # 运行演示
     positional_encoding_demo()
 

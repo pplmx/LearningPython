@@ -1,7 +1,8 @@
+import math
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import math
 
 
 def scaled_dot_product_attention(query, key, value, mask=None):
@@ -86,5 +87,5 @@ def attention_demo():
     print(output[0, 0])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     attention_demo()

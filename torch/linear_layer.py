@@ -26,7 +26,9 @@ def linear_layer_demo():
     linear = nn.Linear(in_features=hidden_size, out_features=hidden_size)
 
     # 查看 Linear 层的参数
-    print(f"\nLinear layer weight shape: {linear.weight.shape}")  # (out_features, in_features)
+    print(
+        f"\nLinear layer weight shape: {linear.weight.shape}"
+    )  # (out_features, in_features)
     print(f"Linear layer bias shape: {linear.bias.shape}")  # (out_features,)
 
     # 前向传播
@@ -51,5 +53,5 @@ def linear_layer_demo():
     print(output[0, 0])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     linear_layer_demo()

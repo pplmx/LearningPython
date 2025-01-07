@@ -19,7 +19,7 @@ class SimpleTransformerLayer(nn.Module):
             embed_dim=hidden_size,
             num_heads=num_heads,
             dropout=dropout,
-            batch_first=False
+            batch_first=False,
         )
 
         # 第一个 Layer Normalization
@@ -29,7 +29,7 @@ class SimpleTransformerLayer(nn.Module):
         self.feed_forward = nn.Sequential(
             nn.Linear(hidden_size, hidden_size * 4),
             nn.ReLU(),
-            nn.Linear(hidden_size * 4, hidden_size)
+            nn.Linear(hidden_size * 4, hidden_size),
         )
 
         # 第二个 Layer Normalization
@@ -90,5 +90,5 @@ def transformer_demo():
             print(f"- Gradient shape: {param.grad.shape}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     transformer_demo()
