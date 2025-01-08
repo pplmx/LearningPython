@@ -135,8 +135,12 @@ class SimpleTransformerLayer(nn.Module):
         # 用于防止过拟合
         self.dropout = nn.Dropout(dropout)
 
-        # 保存注意力权重用于可视化
-        self.last_attention_weights = None
+        # 用于可视化的属性, 添加前缀 "vis_" 以区分(可以直接删除及相关代码, 不影响模型功能)
+        self.vis_last_attention_weights = None  # 存储最后的注意力权重
+        self.vis_attention_before_norm = None  # 自注意力层LayerNorm前的状态
+        self.vis_attention_after_norm = None  # 自注意力层LayerNorm后的状态
+        self.vis_ff_before_norm = None  # 前馈网络层LayerNorm前的状态
+        self.vis_ff_after_norm = None  # 前馈网络层LayerNorm后的状态
 
     def forward(self, x):
         """
@@ -158,7 +162,7 @@ class SimpleTransformerLayer(nn.Module):
         # attn_output: 注意力层的输出
         # attention_weights: 注意力权重矩阵
         attn_output, attention_weights = self.self_attention(x, x, x)
-        self.last_attention_weights = attention_weights  # 保存权重用于可视化
+        self.vis_last_attention_weights = attention_weights  # 保存权重用于可视化
 
         # 2. 第一个残差连接和层归一化
         # 注意力输出 -> Dropout -> 残差连接 -> LayerNorm
@@ -166,8 +170,8 @@ class SimpleTransformerLayer(nn.Module):
         normed_attention = self.norm1(attention_output)  # 层归一化
 
         # 保存中间状态用于可视化
-        self.attention_before_norm = attention_output
-        self.attention_after_norm = normed_attention
+        self.vis_attention_before_norm = attention_output
+        self.vis_attention_after_norm = normed_attention
 
         # 3. 前馈网络
         ff_output = self.feed_forward(normed_attention)
@@ -178,8 +182,8 @@ class SimpleTransformerLayer(nn.Module):
         output = self.norm2(ff_output)  # 层归一化
 
         # 保存中间状态用于可视化
-        self.ff_before_norm = ff_output
-        self.ff_after_norm = output
+        self.vis_ff_before_norm = ff_output
+        self.vis_ff_after_norm = output
 
         return output
 
@@ -225,7 +229,7 @@ def transformer_demo():
     print("\n=== 2. 注意力权重可视化 ===")
     # 获取注意力权重并处理成二维矩阵
     # 注意力权重形状为 [batch_size, num_heads, seq_len, seq_len]
-    attention_weights = model.last_attention_weights
+    attention_weights = model.vis_last_attention_weights
     print("\n原始注意力权重形状:", attention_weights.shape)
 
     # 取第一个批次，并对所有头的权重取平均
@@ -245,14 +249,16 @@ def transformer_demo():
     print("\n=== 3. 特征分布可视化 ===")
     print("\n可视化自注意力层的归一化效果...")
     compare_feature_distributions(
-        model.attention_before_norm,
-        model.attention_after_norm,
+        model.vis_attention_before_norm,
+        model.vis_attention_after_norm,
         "自注意力层 - LayerNorm前后对比",
     )
 
     print("\n可视化前馈网络层的归一化效果...")
     compare_feature_distributions(
-        model.ff_before_norm, model.ff_after_norm, "前馈网络层 - LayerNorm前后对比"
+        model.vis_ff_before_norm,
+        model.vis_ff_after_norm,
+        "前馈网络层 - LayerNorm前后对比",
     )
 
     print("\n=== 4. 参数和梯度信息 ===")
