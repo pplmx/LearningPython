@@ -6,7 +6,7 @@ import torch.nn as nn
 
 class ScheduledOptim:
     """
-    实现 Transformer 论文中的学习率调度器
+    实现 Transformer 学习率调度器
     """
 
     def __init__(self, optimizer, d_model, warmup_steps=4000):
