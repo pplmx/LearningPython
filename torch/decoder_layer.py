@@ -18,18 +18,12 @@ class DecoderLayer(nn.Module):
 
         # 第一个多头自注意力层（带掩码）
         self.self_attn = nn.MultiheadAttention(
-            embed_dim=d_model,
-            num_heads=num_heads,
-            dropout=dropout,
-            batch_first=True
+            embed_dim=d_model, num_heads=num_heads, dropout=dropout, batch_first=True
         )
 
         # 第二个多头注意力层（用于编码器-解码器交叉注意力）
         self.cross_attn = nn.MultiheadAttention(
-            embed_dim=d_model,
-            num_heads=num_heads,
-            dropout=dropout,
-            batch_first=True
+            embed_dim=d_model, num_heads=num_heads, dropout=dropout, batch_first=True
         )
 
         # 前馈神经网络
@@ -37,7 +31,7 @@ class DecoderLayer(nn.Module):
             nn.Linear(d_model, d_ff),
             nn.ReLU(),
             nn.Dropout(dropout),
-            nn.Linear(d_ff, d_model)
+            nn.Linear(d_ff, d_model),
         )
 
         # Layer Normalization
@@ -60,7 +54,9 @@ class DecoderLayer(nn.Module):
         x = self.norm1(x + self.dropout(self_attn_out))
 
         # 交叉注意力
-        cross_attn_out, _ = self.cross_attn(x, enc_output, enc_output, key_padding_mask=src_mask)
+        cross_attn_out, _ = self.cross_attn(
+            x, enc_output, enc_output, key_padding_mask=src_mask
+        )
         x = self.norm2(x + self.dropout(cross_attn_out))
 
         # 前馈网络
@@ -96,14 +92,16 @@ def decoder_layer_demo():
     print(f"Encoder output shape: {encoder_output.shape}")
 
     # 创建目标序列掩码（防止看到未来信息）
-    tgt_mask = torch.triu(torch.ones(seq_length, seq_length) * float('-inf'), diagonal=1)
+    tgt_mask = torch.triu(
+        torch.ones(seq_length, seq_length) * float("-inf"), diagonal=1
+    )
     print("\nTarget mask shape:", tgt_mask.shape)
     print("Target mask (上三角为-inf，表示不能看到未来信息):")
     print(tgt_mask[:5, :5])  # 只打印一部分
 
     # 创建源序列掩码（用于处理填充）
     src_mask = torch.ones(batch_size, seq_length)
-    src_mask[:, seq_length // 2:] = 0  # 假设后半部分是填充
+    src_mask[:, seq_length // 2 :] = 0  # 假设后半部分是填充
     print("\nSource mask shape:", src_mask.shape)
     print("Source mask (1表示有效位置，0表示填充位置):")
     print(src_mask)
@@ -124,5 +122,5 @@ def decoder_layer_demo():
     print(f"Trainable parameters: {trainable_params}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     decoder_layer_demo()
