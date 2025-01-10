@@ -4,7 +4,6 @@ version = "0.1.0"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "jax>=0.4.38",
     "matplotlib>=3.10.0",
     "torch>=2.5.1",
     "torchvision>=0.20.1",
@@ -29,3 +28,21 @@ explicit = true
 name = "pytorch-cu124"
 url = "https://download.pytorch.org/whl/cu124"
 explicit = true
+
+[tool.ruff.lint]
+extend-select = [
+    "E", # pycodestyle errors
+    "W", # pycodestyle warnings
+    "F", # pyflakes
+    "I", # isort
+    "B", # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+    "ARG001", # unused arguments in functions
+]
+
+ignore = [
+    "E501", # line too long
+    "B008", # do not perform function calls in argument defaults
+    "B904", # Allow raising exceptions without from e, for HTTPException
+]
