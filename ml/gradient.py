@@ -26,11 +26,6 @@ rcParams["axes.unicode_minus"] = False  # 解决负号显示问题
 def f(x, y):
     """
     这是我们要分析的二元函数: f(x,y) = x² - y²
-    参数:
-        x: 第一个变量
-        y: 第二个变量
-    返回:
-        函数值: x的平方减去y的平方
     """
     return x**2 - y**2
 

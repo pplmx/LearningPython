@@ -145,6 +145,7 @@ class OptimizationVisualizer:
             blit=True,
             repeat=False,
         )
+        # anim.save("optimization_animation.gif", writer="pillow", fps=60)
         plt.show()
 
 
