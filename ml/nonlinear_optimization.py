@@ -210,7 +210,7 @@ class GradientDescentOptimizer:
             if i % 10 == 0:
                 print(
                     f"迭代 {i:4d}: x={x:8.4f}, y={y:8.4f}, z={z:8.4f}, "
-                    f"梯度范数={np.sqrt(dx ** 2 + dy ** 2):8.4f}"
+                    f"梯度范数={np.sqrt(dx**2 + dy**2):8.4f}"
                 )
 
         final_z = NonlinearFunction.evaluate(x, y)

@@ -103,9 +103,9 @@ class SimpleTransformerLayer(nn.Module):
         super().__init__()
 
         # 确保hidden_size能被num_heads整除
-        assert (
-            hidden_size % num_heads == 0
-        ), f"hidden_size({hidden_size})必须能被num_heads({num_heads})整除"
+        assert hidden_size % num_heads == 0, (
+            f"hidden_size({hidden_size})必须能被num_heads({num_heads})整除"
+        )
 
         # 多头注意力层
         self.self_attention = nn.MultiheadAttention(
