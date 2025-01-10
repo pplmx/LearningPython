@@ -155,7 +155,7 @@ def layer_norm_demo():
     layer_norm = nn.LayerNorm(normalized_shape=hidden_size)
 
     # 查看 LayerNorm 层的参数
-    print(f"\nLayerNorm parameters:")
+    print("\nLayerNorm parameters:")
     print(f"Weight (gamma) shape: {layer_norm.weight.shape}")  # shape: [hidden_size]
     print(f"Bias (beta) shape: {layer_norm.bias.shape}")  # shape: [hidden_size]
 

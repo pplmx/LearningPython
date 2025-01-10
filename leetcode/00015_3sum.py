@@ -1,4 +1,3 @@
-from typing import List
 
 
 class Solution:
@@ -7,7 +6,7 @@ class Solution:
     -105 <= nums[i] <= 105
     """
 
-    def three_sum(self, nums: List[int]) -> List[List[int]]:
+    def three_sum(self, nums: list[int]) -> list[list[int]]:
         """
         Given an array nums of n integers, are there elements a, b, c in nums
         such that a + b + c = 0?
@@ -40,7 +39,7 @@ class Solution:
                         ret_set |= {tmp}
         return [[i, j, k] for i, j, k in ret_set]
 
-    def three_sum_ultimate(self, nums: List[int]) -> List[List[int]]:
+    def three_sum_ultimate(self, nums: list[int]) -> list[list[int]]:
         length = len(nums)
         if length < 3:
             return []

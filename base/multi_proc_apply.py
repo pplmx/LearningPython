@@ -26,7 +26,7 @@ def log_result(result):
 def multi_proc(task_func_list, task_param_list, processes: int = os.cpu_count()):
     with Pool(processes=processes) as pool:
         # launching multiple evaluations asynchronously *may* use more processes
-        for task_func, task_param in zip(task_func_list, task_param_list):
+        for task_func, task_param in zip(task_func_list, task_param_list, strict=False):
             print(f"task_func: {task_func}, task_params: {task_param}")
             pool.apply_async(task_func, task_param, callback=log_result)
         pool.close()

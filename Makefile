@@ -20,7 +20,7 @@ init:
 # format and lint
 ruff:
 	@ruff format
-	@ruff check --fix --unsafe-fixes --select I
+	@ruff check --fix
 
 # start jupyter lab
 lab:

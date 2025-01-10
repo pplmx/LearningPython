@@ -1,8 +1,6 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Node class
-from typing import Optional
 
 
 class Node:
@@ -30,7 +28,7 @@ class LinkedList:
 
 
 class SinglyLinkedList(LinkedList):
-    def __init__(self, to_linked: Optional[list] = None):
+    def __init__(self, to_linked: list | None = None):
         """
 
         :param to_linked:

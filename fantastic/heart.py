@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from math import cos, log, pi, sin
 from tkinter import messagebox
 from tkinter.constants import CENTER
-from typing import Dict, List, Set, Tuple
 
 # 配置常量
 CONFIG = {
@@ -34,17 +33,17 @@ class HeartAnimation:
         self.heart_x = CONFIG["WINDOW_WIDTH"] / 2
         self.heart_y = CONFIG["WINDOW_HEIGHT"] / 2
         self.frames = frames
-        self.points: Set[Tuple[float, float]] = set()
-        self.edge_points: Set[Tuple[float, float]] = set()
-        self.center_points: Set[Tuple[float, float]] = set()
-        self.frame_points: Dict[int, List[Point]] = {}
+        self.points: set[tuple[float, float]] = set()
+        self.edge_points: set[tuple[float, float]] = set()
+        self.center_points: set[tuple[float, float]] = set()
+        self.frame_points: dict[int, list[Point]] = {}
 
         self._initialize_points()
         self._generate_frames()
 
     def _heart_function(
         self, t: float, scale: float = CONFIG["HEART_SCALE"]
-    ) -> Tuple[int, int]:
+    ) -> tuple[int, int]:
         """生成心形曲线的点"""
         x = 16 * (sin(t) ** 3)
         y = -(13 * cos(t) - 5 * cos(2 * t) - 2 * cos(3 * t) - cos(4 * t))
@@ -54,7 +53,7 @@ class HeartAnimation:
 
     def _scatter_point(
         self, x: float, y: float, beta: float = 0.15
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """散射效果"""
         ratio_x = -beta * log(random.random())
         ratio_y = -beta * log(random.random())
@@ -62,7 +61,7 @@ class HeartAnimation:
         dy = ratio_y * (y - self.heart_y)
         return x - dx, y - dy
 
-    def _shrink_point(self, x: float, y: float, ratio: float) -> Tuple[float, float]:
+    def _shrink_point(self, x: float, y: float, ratio: float) -> tuple[float, float]:
         """收缩效果"""
         force = -1 / (((x - self.heart_x) ** 2 + (y - self.heart_y) ** 2) ** 0.6)
         dx = ratio * force * (x - self.heart_x)
@@ -127,7 +126,7 @@ class HeartAnimation:
 
     def _calculate_position(
         self, x: float, y: float, ratio: float
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """计算点的新位置"""
         force = 1 / (((x - self.heart_x) ** 2 + (y - self.heart_y) ** 2) ** 0.520)
         dx = ratio * force * (x - self.heart_x) + random.randint(-1, 1)

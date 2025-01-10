@@ -1,10 +1,9 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import functools
 import time
 
 
-class Apple(object):
+class Apple:
     def __init__(self, color):
         self.__color = color
 

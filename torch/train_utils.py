@@ -24,7 +24,7 @@ class ScheduledOptim:
         self.d_model = d_model
 
         # 打印初始设置
-        print(f"初始化学习率调度器:")
+        print("初始化学习率调度器:")
         print(f"- 模型维度: {d_model}")
         print(f"- 预热步数: {warmup_steps}")
         print(f"- 初始学习率: {optimizer.param_groups[0]['lr']:.6f}")
@@ -89,7 +89,7 @@ class LabelSmoothing(nn.Module):
         self.size = size  # 类别数量
         self.true_dist = None
 
-        print(f"初始化标签平滑:")
+        print("初始化标签平滑:")
         print(f"- 类别数量: {size}")
         print(f"- 平滑系数: {smoothing}")
         print(f"- 正确标签概率: {self.confidence}")

@@ -17,7 +17,6 @@ f(x, y) = sin(x^2/4 + y^2/2) + 2*exp(-(x^2 + y^2)/8) + (x^2 + 2*y^2)/10
     python nonlinear_optimization.py
 """
 
-from typing import List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -38,7 +37,7 @@ class NonlinearFunction:
         return term1 + term2 + term3
 
     @staticmethod
-    def gradient(x: float, y: float) -> Tuple[float, float]:
+    def gradient(x: float, y: float) -> tuple[float, float]:
         """计算函数关于x和y的偏导数
 
         ∂f/∂x = (x/2)*cos(x^2/4 + y^2/2) - (x/4)*2*exp(-(x^2 + y^2)/8) + x/5
@@ -56,7 +55,7 @@ class NonlinearFunction:
 class OptimizationVisualizer:
     """优化过程可视化器"""
 
-    def __init__(self, x_range: Tuple[float, float], y_range: Tuple[float, float]):
+    def __init__(self, x_range: tuple[float, float], y_range: tuple[float, float]):
         self.x_range = x_range
         self.y_range = y_range
         self.history = []
@@ -167,7 +166,7 @@ class GradientDescentOptimizer:
         # 可视化器
         self.visualizer = OptimizationVisualizer((-4, 4), (-4, 4))
 
-    def optimize(self, x0: float, y0: float) -> Tuple[float, float, float, List]:
+    def optimize(self, x0: float, y0: float) -> tuple[float, float, float, list]:
         """执行梯度下降优化
 
         Args:

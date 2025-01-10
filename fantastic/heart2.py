@@ -4,7 +4,6 @@ from dataclasses import dataclass, field
 from math import cos, pi, sin
 from tkinter import messagebox
 from tkinter.constants import CENTER
-from typing import List
 
 # 全局配置常量
 CONFIG = {
@@ -79,8 +78,8 @@ class HeartAnimation:
         self.heart_x = CONFIG["WINDOW_WIDTH"] / 2
         self.heart_y = CONFIG["WINDOW_HEIGHT"] / 2
         self.frames = frames
-        self.particles: List[Particle] = []
-        self.stars: List[Star] = []
+        self.particles: list[Particle] = []
+        self.stars: list[Star] = []
         self.time = 0
         self.pulse_phase = 0
 
