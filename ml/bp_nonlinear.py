@@ -14,7 +14,7 @@ f(x, y) = sin(x^2/4 + y^2/2) + 2*exp(-(x^2 + y^2)/8) + (x^2 + 2*y^2)/10
 4. 局部最小值：函数可能存在多个局部最小值
 
 运行示例:
-    python nonlinear_optimization.py
+    python bp_nonlinear.py
 """
 
 import matplotlib.pyplot as plt

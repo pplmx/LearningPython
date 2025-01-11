@@ -12,7 +12,7 @@
 4. 收敛条件: 当损失值小于某个阈值时停止迭代
 
 运行示例:
-    python linear_optimization.py
+    python bp_linear.py
 """
 
 import matplotlib.pyplot as plt
