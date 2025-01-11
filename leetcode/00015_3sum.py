@@ -1,5 +1,3 @@
-
-
 class Solution:
     """
     0 <= nums.length <= 3000

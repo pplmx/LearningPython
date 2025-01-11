@@ -1,5 +1,3 @@
-
-
 class Solution:
     def remove_duplicates(self, nums: list[int]) -> int:
         """
