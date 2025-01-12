@@ -6,7 +6,7 @@ import torch.nn as nn
 
 class MultiHeadAttention(nn.Module):
     def __init__(self, d_model, num_heads):
-        super(MultiHeadAttention, self).__init__()
+        super().__init__()
         assert d_model % num_heads == 0, "d_model 必须能被 num_heads 整除"
 
         self.d_model = d_model
@@ -41,7 +41,7 @@ class MultiHeadAttention(nn.Module):
 
 class FeedForward(nn.Module):
     def __init__(self, d_model, d_ff):
-        super(FeedForward, self).__init__()
+        super().__init__()
         self.linear1 = nn.Linear(d_model, d_ff)
         self.linear2 = nn.Linear(d_ff, d_model)
         self.relu = nn.ReLU()
@@ -52,7 +52,7 @@ class FeedForward(nn.Module):
 
 class EncoderLayer(nn.Module):
     def __init__(self, d_model, num_heads, d_ff, dropout=0.1):
-        super(EncoderLayer, self).__init__()
+        super().__init__()
         self.self_attn = MultiHeadAttention(d_model, num_heads)
         self.feed_forward = FeedForward(d_model, d_ff)
         self.norm1 = nn.LayerNorm(d_model)
@@ -68,7 +68,7 @@ class EncoderLayer(nn.Module):
 
 class DecoderLayer(nn.Module):
     def __init__(self, d_model, num_heads, d_ff, dropout=0.1):
-        super(DecoderLayer, self).__init__()
+        super().__init__()
         self.self_attn = MultiHeadAttention(d_model, num_heads)
         self.cross_attn = MultiHeadAttention(d_model, num_heads)
         self.feed_forward = FeedForward(d_model, d_ff)
@@ -92,7 +92,7 @@ class DecoderLayer(nn.Module):
 
 class PositionalEncoding(nn.Module):
     def __init__(self, d_model, max_len=5000):
-        super(PositionalEncoding, self).__init__()
+        super().__init__()
 
         pe = torch.zeros(max_len, d_model)
         position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
@@ -109,7 +109,7 @@ class PositionalEncoding(nn.Module):
 class Transformer(nn.Module):
     def __init__(self, src_vocab_size, tgt_vocab_size, d_model, num_heads, num_encoder_layers, num_decoder_layers, d_ff,
                  max_seq_length, dropout=0.1):
-        super(Transformer, self).__init__()
+        super().__init__()
 
         self.encoder_embedding = nn.Embedding(src_vocab_size, d_model)
         self.decoder_embedding = nn.Embedding(tgt_vocab_size, d_model)
@@ -125,7 +125,7 @@ class Transformer(nn.Module):
 
     def generate_square_subsequent_mask(self, sz):
         mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
-        mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0))
+        mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, 0.0)
         return mask
 
     def forward(self, src, tgt, src_mask=None, tgt_mask=None):
