@@ -35,7 +35,9 @@ class MultiHeadAttention(nn.Module):
 
         attn_output = self.attention(Q, K, V, mask)
 
-        attn_output = attn_output.transpose(1, 2).contiguous().view(batch_size, -1, self.d_model)
+        attn_output = (
+            attn_output.transpose(1, 2).contiguous().view(batch_size, -1, self.d_model)
+        )
         return self.W_o(attn_output)
 
 
@@ -96,19 +98,31 @@ class PositionalEncoding(nn.Module):
 
         pe = torch.zeros(max_len, d_model)
         position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
+        div_term = torch.exp(
+            torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model)
+        )
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
         pe = pe.unsqueeze(0).transpose(0, 1)
-        self.register_buffer('pe', pe)
+        self.register_buffer("pe", pe)
 
     def forward(self, x):
-        return x + self.pe[:x.size(0), :]
+        return x + self.pe[: x.size(0), :]
 
 
 class Transformer(nn.Module):
-    def __init__(self, src_vocab_size, tgt_vocab_size, d_model, num_heads, num_encoder_layers, num_decoder_layers, d_ff,
-                 max_seq_length, dropout=0.1):
+    def __init__(
+        self,
+        src_vocab_size,
+        tgt_vocab_size,
+        d_model,
+        num_heads,
+        num_encoder_layers,
+        num_decoder_layers,
+        d_ff,
+        max_seq_length,
+        dropout=0.1,
+    ):
         super().__init__()
 
         self.encoder_embedding = nn.Embedding(src_vocab_size, d_model)
@@ -116,21 +130,37 @@ class Transformer(nn.Module):
         self.positional_encoding = PositionalEncoding(d_model, max_seq_length)
 
         self.encoder_layers = nn.ModuleList(
-            [EncoderLayer(d_model, num_heads, d_ff, dropout) for _ in range(num_encoder_layers)])
+            [
+                EncoderLayer(d_model, num_heads, d_ff, dropout)
+                for _ in range(num_encoder_layers)
+            ]
+        )
         self.decoder_layers = nn.ModuleList(
-            [DecoderLayer(d_model, num_heads, d_ff, dropout) for _ in range(num_decoder_layers)])
+            [
+                DecoderLayer(d_model, num_heads, d_ff, dropout)
+                for _ in range(num_decoder_layers)
+            ]
+        )
 
         self.fc = nn.Linear(d_model, tgt_vocab_size)
         self.dropout = nn.Dropout(dropout)
 
     def generate_square_subsequent_mask(self, sz):
         mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
-        mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, 0.0)
+        mask = (
+            mask.float()
+            .masked_fill(mask == 0, float("-inf"))
+            .masked_fill(mask == 1, 0.0)
+        )
         return mask
 
     def forward(self, src, tgt, src_mask=None, tgt_mask=None):
-        src_embedded = self.dropout(self.positional_encoding(self.encoder_embedding(src)))
-        tgt_embedded = self.dropout(self.positional_encoding(self.decoder_embedding(tgt)))
+        src_embedded = self.dropout(
+            self.positional_encoding(self.encoder_embedding(src))
+        )
+        tgt_embedded = self.dropout(
+            self.positional_encoding(self.decoder_embedding(tgt))
+        )
 
         # Encoder
         for enc_layer in self.encoder_layers:
@@ -148,10 +178,15 @@ def create_mask(src, tgt, pad_idx, model):
     src_seq_len = src.size(1)
     tgt_seq_len = tgt.size(1)
 
-    src_mask = (src != pad_idx).unsqueeze(1).unsqueeze(2)  # (batch_size, 1, 1, src_seq_len)
-    tgt_mask = (tgt != pad_idx).unsqueeze(1).unsqueeze(3)  # (batch_size, 1, tgt_seq_len, 1)
+    src_mask = (
+        (src != pad_idx).unsqueeze(1).unsqueeze(2)
+    )  # (batch_size, 1, 1, src_seq_len)
+    tgt_mask = (
+        (tgt != pad_idx).unsqueeze(1).unsqueeze(3)
+    )  # (batch_size, 1, tgt_seq_len, 1)
     tgt_subsequent_mask = model.generate_square_subsequent_mask(tgt_seq_len).unsqueeze(
-        0)  # (1, tgt_seq_len, tgt_seq_len)
+        0
+    )  # (1, tgt_seq_len, tgt_seq_len)
 
     # 将掩码转换为布尔类型，然后进行逻辑与运算
     tgt_mask = (tgt_mask.bool() & tgt_subsequent_mask.bool()).float()
@@ -172,8 +207,17 @@ def demo():
     dropout = 0.1  # dropout率
 
     # 创建模型实例
-    model = Transformer(src_vocab_size, tgt_vocab_size, d_model, num_heads, num_encoder_layers, num_decoder_layers,
-                        d_ff, max_seq_length, dropout)
+    model = Transformer(
+        src_vocab_size,
+        tgt_vocab_size,
+        d_model,
+        num_heads,
+        num_encoder_layers,
+        num_decoder_layers,
+        d_ff,
+        max_seq_length,
+        dropout,
+    )
 
     # 假设我们有以下输入数据（这里使用随机数字作为示例）
     # 源语言序列（假设每个句子长度为4）
@@ -206,5 +250,5 @@ def demo():
     print("损失:", loss.item())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     demo()
