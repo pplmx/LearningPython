@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from collections import defaultdict, deque
 from collections.abc import Iterator
@@ -36,10 +37,15 @@ class Graph(ABC, Generic[V]):
         return True
 
     def remove_vertex(self, vertex: V) -> bool:
-        """Remove a vertex and its incident edges."""
+        """Remove a vertex and its incident edges.
+
+        Note:
+            This method converts the iterator returned by get_incident_edges
+            into a list to avoid errors when modifying the graph while iterating.
+        """
         if vertex not in self._vertices:
             return False
-        for edge in self.get_incident_edges(vertex):
+        for edge in list(self.get_incident_edges(vertex)):
             self.remove_edge(edge.u, edge.v)
         self._vertices.remove(vertex)
         self._remove_vertex_internal(vertex)
@@ -65,15 +71,19 @@ class Graph(ABC, Generic[V]):
     # --- Properties ---
     @property
     def vertices(self) -> set[V]:
+        """Return a copy of the vertex set."""
         return self._vertices.copy()
 
     @property
     def vertex_count(self) -> int:
+        """Return the number of vertices in the graph."""
         return len(self._vertices)
 
     @property
     @abstractmethod
-    def edge_count(self) -> int: ...
+    def edge_count(self) -> int:
+        """Return the number of edges in the graph."""
+        ...
 
     # --- Abstract methods for subclasses ---
     @abstractmethod
@@ -92,16 +102,28 @@ class Graph(ABC, Generic[V]):
     def has_edge(self, u: V, v: V) -> bool: ...
 
     @abstractmethod
-    def neighbors(self, vertex: V) -> Iterator[V]: ...
+    def neighbors(self, vertex: V) -> Iterator[V]:
+        """Return an iterator over neighbors of the vertex (lazy evaluation)."""
+        ...
 
     @abstractmethod
-    def get_incident_edges(self, vertex: V) -> Iterator[Edge[V]]: ...
+    def get_incident_edges(self, vertex: V) -> Iterator[Edge[V]]:
+        """Return an iterator over all edges incident to the vertex.
+
+        Warning:
+            Convert to list() if you plan to modify the graph while iterating.
+        """
+        ...
 
     @abstractmethod
-    def get_edge(self, u: V, v: V) -> Edge[V] | None: ...
+    def get_edge(self, u: V, v: V) -> Edge[V] | None:
+        """Return the edge (u,v) if it exists, else None."""
+        ...
 
     @abstractmethod
-    def is_directed(self) -> bool: ...
+    def is_directed(self) -> bool:
+        """Return True if the graph is directed."""
+        ...
 
     # --- Traversal Algorithms ---
     def dfs(self, start: V) -> list[V]:
@@ -179,9 +201,15 @@ class UndirectedGraph(Graph[V]):
         return frozenset({u, v}) in self._edges
 
     def neighbors(self, vertex: V) -> Iterator[V]:
+        """Return an iterator over neighbors of the vertex (lazy evaluation)."""
         return iter(self._adj.get(vertex, ()))
 
     def get_incident_edges(self, vertex: V) -> Iterator[Edge[V]]:
+        """Return an iterator over edges incident to the vertex.
+
+        Warning:
+            Convert to list() if you plan to modify the graph while iterating.
+        """
         for neighbor in self._adj.get(vertex, ()):  # direct lookup
             if edge := self.get_edge(vertex, neighbor):
                 yield edge
@@ -190,12 +218,14 @@ class UndirectedGraph(Graph[V]):
         return self._edges.get(frozenset({u, v}))
 
     def degree(self, vertex: V) -> int:
+        """Return the degree of the vertex."""
         return len(self._adj.get(vertex, ()))
 
     def is_directed(self) -> bool:
         return False
 
     def __getitem__(self, vertex: V) -> frozenset[V]:
+        """Return an immutable set of neighbors of the vertex."""
         return frozenset(self._adj.get(vertex, ()))
 
 
@@ -236,12 +266,19 @@ class DirectedGraph(Graph[V]):
         return (u, v) in self._edges
 
     def neighbors(self, vertex: V) -> Iterator[V]:
+        """Return an iterator over successors (out-neighbors) of the vertex."""
         return iter(self._out_adj.get(vertex, ()))
 
     def predecessors(self, vertex: V) -> Iterator[V]:
+        """Return an iterator over predecessors (in-neighbors) of the vertex."""
         return iter(self._in_adj.get(vertex, ()))
 
     def get_incident_edges(self, vertex: V) -> Iterator[Edge[V]]:
+        """Return an iterator over all edges incident to the vertex.
+
+        Warning:
+            Convert to list() if you plan to modify the graph while iterating.
+        """
         for successor in self._out_adj.get(vertex, ()):  # outgoing
             if edge := self.get_edge(vertex, successor):
                 yield edge
@@ -253,12 +290,15 @@ class DirectedGraph(Graph[V]):
         return self._edges.get((u, v))
 
     def out_degree(self, vertex: V) -> int:
+        """Return the out-degree of the vertex."""
         return len(self._out_adj.get(vertex, ()))
 
     def in_degree(self, vertex: V) -> int:
+        """Return the in-degree of the vertex."""
         return len(self._in_adj.get(vertex, ()))
 
     def degree(self, vertex: V) -> int:
+        """Return the total degree (in+out) of the vertex."""
         return self.in_degree(vertex) + self.out_degree(vertex)
 
     def is_directed(self) -> bool:
@@ -279,6 +319,7 @@ class DirectedGraph(Graph[V]):
         return result if len(result) == len(self._vertices) else None
 
     def __getitem__(self, vertex: V) -> dict[str, frozenset[V]]:
+        """Return immutable sets of in/out neighbors of the vertex."""
         return {
             "out": frozenset(self._out_adj.get(vertex, ())),
             "in": frozenset(self._in_adj.get(vertex, ())),
@@ -286,6 +327,7 @@ class DirectedGraph(Graph[V]):
 
 
 # ==================== Demo ====================
+
 
 def demo() -> None:
     print("=== Graph Implementation Demo ===\n")
