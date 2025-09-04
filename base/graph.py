@@ -125,7 +125,7 @@ class Graph(ABC):
         if start not in self._vertices:
             return []
 
-        visited = set([start])
+        visited = {start}
         queue = deque([start])
         result = [start]
 
@@ -194,7 +194,7 @@ class UndirectedGraph(Graph):
     def get_incident_edges(self, vertex: Any) -> Iterator[tuple[Any, Any]]:
         """获取关联的边"""
         for neighbor in self._adj.get(vertex, set()):
-            yield (vertex, neighbor)
+            yield vertex, neighbor
 
     def degree(self, vertex: Any) -> int:
         """获取度数"""
@@ -257,10 +257,10 @@ class DirectedGraph(Graph):
         """获取关联的边（出边+入边）"""
         # 出边
         for successor in self._out_adj.get(vertex, set()):
-            yield (vertex, successor)
+            yield vertex, successor
         # 入边
         for predecessor in self._in_adj.get(vertex, set()):
-            yield (predecessor, vertex)
+            yield predecessor, vertex
 
     def out_degree(self, vertex: Any) -> int:
         """出度"""
@@ -302,7 +302,7 @@ class DirectedGraph(Graph):
         """返回 (出邻接点, 入邻接点)"""
         out_neighbors = self._out_adj.get(vertex, set()).copy()
         in_neighbors = self._in_adj.get(vertex, set()).copy()
-        return (out_neighbors, in_neighbors)
+        return out_neighbors, in_neighbors
 
 
 # ==================== 使用示例 ====================
