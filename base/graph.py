@@ -1,14 +1,14 @@
 from abc import ABC, abstractmethod
 from collections import defaultdict, deque
-from typing import Any, Dict, List, Set, Iterator, Tuple, Optional
-import weakref
+from collections.abc import Iterator
+from typing import Any
 
 
 class Graph(ABC):
     """图的抽象基类 - Pythonic版本"""
 
     def __init__(self):
-        self._vertices: Set[Any] = set()
+        self._vertices: set[Any] = set()
         self._edge_count = 0
 
     def add_vertex(self, vertex: Any) -> bool:
@@ -57,7 +57,7 @@ class Graph(ABC):
 
     # 属性访问器
     @property
-    def vertices(self) -> Set[Any]:
+    def vertices(self) -> set[Any]:
         return self._vertices.copy()
 
     @property
@@ -94,7 +94,7 @@ class Graph(ABC):
         pass
 
     @abstractmethod
-    def get_incident_edges(self, vertex: Any) -> Iterator[Tuple[Any, Any]]:
+    def get_incident_edges(self, vertex: Any) -> Iterator[tuple[Any, Any]]:
         pass
 
     @abstractmethod
@@ -102,7 +102,7 @@ class Graph(ABC):
         pass
 
     # 通用算法
-    def dfs(self, start: Any) -> List[Any]:
+    def dfs(self, start: Any) -> list[Any]:
         """深度优先搜索"""
         if start not in self._vertices:
             return []
@@ -120,7 +120,7 @@ class Graph(ABC):
         _dfs_recursive(start)
         return result
 
-    def bfs(self, start: Any) -> List[Any]:
+    def bfs(self, start: Any) -> list[Any]:
         """广度优先搜索"""
         if start not in self._vertices:
             return []
@@ -160,8 +160,8 @@ class UndirectedGraph(Graph):
 
     def __init__(self):
         super().__init__()
-        self._adj: Dict[Any, Set[Any]] = defaultdict(set)
-        self._edges: Dict[Tuple[Any, Any], Any] = {}  # 存储边权重
+        self._adj: dict[Any, set[Any]] = defaultdict(set)
+        self._edges: dict[tuple[Any, Any], Any] = {}  # 存储边权重
 
     def _add_vertex_internal(self, vertex: Any) -> None:
         if vertex not in self._adj:
@@ -191,7 +191,7 @@ class UndirectedGraph(Graph):
         """获取邻接顶点"""
         return iter(self._adj.get(vertex, set()))
 
-    def get_incident_edges(self, vertex: Any) -> Iterator[Tuple[Any, Any]]:
+    def get_incident_edges(self, vertex: Any) -> Iterator[tuple[Any, Any]]:
         """获取关联的边"""
         for neighbor in self._adj.get(vertex, set()):
             yield (vertex, neighbor)
@@ -208,7 +208,7 @@ class UndirectedGraph(Graph):
     def is_directed(self) -> bool:
         return False
 
-    def __getitem__(self, vertex: Any) -> Set[Any]:
+    def __getitem__(self, vertex: Any) -> set[Any]:
         """支持 graph[vertex] 语法获取邻接点"""
         return self._adj.get(vertex, set()).copy()
 
@@ -218,9 +218,9 @@ class DirectedGraph(Graph):
 
     def __init__(self):
         super().__init__()
-        self._out_adj: Dict[Any, Set[Any]] = defaultdict(set)  # 出邻接表
-        self._in_adj: Dict[Any, Set[Any]] = defaultdict(set)   # 入邻接表
-        self._edges: Dict[Tuple[Any, Any], Any] = {}           # 边权重
+        self._out_adj: dict[Any, set[Any]] = defaultdict(set)  # 出邻接表
+        self._in_adj: dict[Any, set[Any]] = defaultdict(set)  # 入邻接表
+        self._edges: dict[tuple[Any, Any], Any] = {}  # 边权重
 
     def _add_vertex_internal(self, vertex: Any) -> None:
         if vertex not in self._out_adj:
@@ -253,7 +253,7 @@ class DirectedGraph(Graph):
         """获取前驱顶点（入邻接）"""
         return iter(self._in_adj.get(vertex, set()))
 
-    def get_incident_edges(self, vertex: Any) -> Iterator[Tuple[Any, Any]]:
+    def get_incident_edges(self, vertex: Any) -> Iterator[tuple[Any, Any]]:
         """获取关联的边（出边+入边）"""
         # 出边
         for successor in self._out_adj.get(vertex, set()):
@@ -281,7 +281,7 @@ class DirectedGraph(Graph):
     def is_directed(self) -> bool:
         return True
 
-    def topological_sort(self) -> Optional[List[Any]]:
+    def topological_sort(self) -> list[Any] | None:
         """拓扑排序"""
         in_degree = {v: self.in_degree(v) for v in self._vertices}
         queue = deque([v for v in self._vertices if in_degree[v] == 0])
@@ -298,7 +298,7 @@ class DirectedGraph(Graph):
 
         return result if len(result) == len(self._vertices) else None
 
-    def __getitem__(self, vertex: Any) -> Tuple[Set[Any], Set[Any]]:
+    def __getitem__(self, vertex: Any) -> tuple[set[Any], set[Any]]:
         """返回 (出邻接点, 入邻接点)"""
         out_neighbors = self._out_adj.get(vertex, set()).copy()
         in_neighbors = self._in_adj.get(vertex, set()).copy()
@@ -306,6 +306,7 @@ class DirectedGraph(Graph):
 
 
 # ==================== 使用示例 ====================
+
 
 def demo():
     print("=== Pythonic 图实现演示 ===\n")
@@ -315,10 +316,10 @@ def demo():
     ug = UndirectedGraph()
 
     # 简洁的API
-    ug.add_edge('A', 'B', weight=5)
-    ug.add_edge('A', 'C', weight=3)
-    ug.add_edge('B', 'D', weight=7)
-    ug.add_edge('C', 'D', weight=2)
+    ug.add_edge("A", "B", weight=5)
+    ug.add_edge("A", "C", weight=3)
+    ug.add_edge("B", "D", weight=7)
+    ug.add_edge("C", "D", weight=2)
 
     print(f"图: {ug}")
     print(f"A的邻接点: {list(ug.neighbors('A'))}")
@@ -331,7 +332,7 @@ def demo():
     print("\n有向图:")
     dg = DirectedGraph()
 
-    edges = [('A', 'B'), ('A', 'C'), ('B', 'D'), ('C', 'D'), ('D', 'E')]
+    edges = [("A", "B"), ("A", "C"), ("B", "D"), ("C", "D"), ("D", "E")]
     for u, v in edges:
         dg.add_edge(u, v)
 
