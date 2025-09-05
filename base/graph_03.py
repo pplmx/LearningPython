@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections import defaultdict, deque
-from collections.abc import Iterator, Iterable
+from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
-from typing import Any, Generic, TypeVar, Optional, Union
+from typing import Generic, TypeVar
 
 # --- Type variable definitions ---
 V = TypeVar("V")  # Type for vertices
@@ -21,6 +21,7 @@ class Edge(Generic[V, W]):
         v: The destination vertex.
         weight: The weight of the edge, defaults to 1.
     """
+
     u: V
     v: V
     weight: W = 1
@@ -35,16 +36,19 @@ class Edge(Generic[V, W]):
 
 class GraphError(Exception):
     """Base class for exceptions related to graph operations."""
+
     pass
 
 
 class VertexNotFoundError(GraphError):
     """Raised when a vertex is not found in the graph."""
+
     pass
 
 
 class EdgeNotFoundError(GraphError):
     """Raised when an edge is not found in the graph."""
+
     pass
 
 
@@ -263,7 +267,7 @@ class Graph(ABC, Generic[V, W]):
         ...
 
     @abstractmethod
-    def get_edge(self, u: V, v: V) -> Optional[Edge[V, W]]:
+    def get_edge(self, u: V, v: V) -> Edge[V, W] | None:
         """Returns the Edge object between two vertices, or None if it doesn't exist."""
         ...
 
@@ -274,7 +278,7 @@ class Graph(ABC, Generic[V, W]):
 
     # --- Graph Algorithms ---
 
-    def dfs(self, start: V, visited: Optional[set[V]] = None) -> list[V]:
+    def dfs(self, start: V, visited: set[V] | None = None) -> list[V]:
         """
         Performs a Depth-First Search traversal.
 
@@ -449,7 +453,7 @@ class UndirectedGraph(Graph[V, W]):
             if edge is not None:
                 yield edge
 
-    def get_edge(self, u: V, v: V) -> Optional[Edge[V, W]]:
+    def get_edge(self, u: V, v: V) -> Edge[V, W] | None:
         edge_key = frozenset({u, v})
         return self._edges.get(edge_key)
 
@@ -522,7 +526,7 @@ class DirectedGraph(Graph[V, W]):
             if edge is not None:
                 yield edge
 
-    def get_edge(self, u: V, v: V) -> Optional[Edge[V, W]]:
+    def get_edge(self, u: V, v: V) -> Edge[V, W] | None:
         return self._edges.get((u, v))
 
     def out_degree(self, vertex: V) -> int:
@@ -540,7 +544,7 @@ class DirectedGraph(Graph[V, W]):
     def is_directed(self) -> bool:
         return True
 
-    def topological_sort(self) -> Optional[list[V]]:
+    def topological_sort(self) -> list[V] | None:
         """
         Performs a topological sort of the graph.
 
@@ -583,7 +587,8 @@ class DirectedGraph(Graph[V, W]):
 
 # --- Factory Function ---
 
-def create_graph(directed: bool = False) -> Union[DirectedGraph, UndirectedGraph]:
+
+def create_graph(directed: bool = False) -> DirectedGraph | UndirectedGraph:
     """
     Factory function to create a graph.
     Note: Type information is lost. Prefer direct instantiation like `UndirectedGraph[str, int]()`.
@@ -592,6 +597,7 @@ def create_graph(directed: bool = False) -> Union[DirectedGraph, UndirectedGraph
 
 
 # --- Demo ---
+
 
 def demo() -> None:
     """Demonstrates the functionality of the graph data structures."""
@@ -635,12 +641,12 @@ def demo() -> None:
         print(f"Topological order: {topo_order}")
 
     # --- Traversal Algorithms ---
-    print(f"\n--- Graph Traversal Algorithms ---")
+    print("\n--- Graph Traversal Algorithms ---")
     print(f"DFS from 'A' in undirected graph: {ug.dfs('A')}")
     print(f"BFS from 'A' in directed graph: {dg.bfs('A')}")
 
     # --- Connectivity ---
-    print(f"\n--- Connectivity ---")
+    print("\n--- Connectivity ---")
     print(f"Connected components in undirected graph: {ug.connected_components()}")
     print(f"Path exists from 'A' to 'D': {ug.has_path('A', 'D')}")
 
