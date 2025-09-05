@@ -370,7 +370,7 @@ class TestGraphTraversal:
         edges = [("A", "B"), ("A", "C"), ("B", "D"), ("C", "E")]
         graph.add_edges(edges)
 
-        dfs_result = graph.dfs("A")
+        dfs_result = list(graph.dfs("A"))
         assert len(dfs_result) == 5
         assert dfs_result[0] == "A"  # Starting vertex
         assert set(dfs_result) == {"A", "B", "C", "D", "E"}
@@ -382,7 +382,7 @@ class TestGraphTraversal:
         graph.add_edges(edges)
 
         visited = {"A"}
-        dfs_result = graph.dfs("B", visited)
+        dfs_result = list(graph.dfs("B", visited))
 
         assert "A" not in dfs_result  # Was already visited
         assert "B" in dfs_result
@@ -393,7 +393,7 @@ class TestGraphTraversal:
         edges = [("A", "B"), ("A", "C"), ("B", "D"), ("C", "E")]
         graph.add_edges(edges)
 
-        bfs_result = graph.bfs("A")
+        bfs_result = list(graph.bfs("A"))
         assert bfs_result[0] == "A"
 
         # BFS should visit level by level
@@ -411,8 +411,8 @@ class TestGraphTraversal:
         graph = UndirectedGraph[str, int]()
         graph.add_edge("A", "B")
 
-        assert graph.dfs("X") == []
-        assert graph.bfs("X") == []
+        assert list(graph.dfs("X")) == []
+        assert list(graph.bfs("X")) == []
 
 
 class TestGraphConnectivity:
@@ -427,7 +427,7 @@ class TestGraphConnectivity:
         graph.add_edges([("D", "E")])  # Component 2
         graph.add_vertex("F")  # Component 3 (isolated)
 
-        components = graph.connected_components()
+        components = list(graph.connected_components())
         assert len(components) == 3
 
         component_sets = [set(comp) for comp in components]
@@ -561,7 +561,6 @@ class TestErrorHandling:
 
         repr_str = repr(graph)
         assert "UndirectedGraph" in repr_str
-        assert "undirected" in repr_str
         assert "vertices=2" in repr_str
         assert "edges=1" in repr_str
 

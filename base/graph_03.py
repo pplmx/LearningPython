@@ -278,86 +278,96 @@ class Graph(ABC, Generic[V, W]):
 
     # --- Graph Algorithms ---
 
-    def dfs(self, start: V, visited: set[V] | None = None) -> list[V]:
+    def dfs(self, start: V, visited: set[V] | None = None) -> Iterator[V]:
         """
-        Performs a Depth-First Search traversal.
+        Performs a Depth-First Search traversal and yields vertices.
 
         Args:
             start: The starting vertex for the traversal.
-            visited: A set of already visited vertices (for multi-component traversals).
+            visited: An optional set of vertices that are already visited.
+                     Useful when running DFS on multiple connected components.
 
-        Returns:
-            A list of vertices in DFS traversal order.
+        Yields:
+            Vertices in DFS traversal order.
         """
         if start not in self._vertices:
-            return []
+            return
 
         if visited is None:
             visited = set()
-        result = []
 
-        def _dfs_recursive(vertex: V) -> None:
+        if start in visited:
+            return
+
+        stack = [start]
+
+        while stack:
+            vertex = stack.pop()
+
+            if vertex in visited:
+                continue
+
             visited.add(vertex)
-            result.append(vertex)
-            for neighbor in self.neighbors(vertex):
+            yield vertex
+
+            for neighbor in reversed(list(self.neighbors(vertex))):
                 if neighbor not in visited:
-                    _dfs_recursive(neighbor)
+                    stack.append(neighbor)
 
-        if start not in visited:
-            _dfs_recursive(start)
-        return result
-
-    def bfs(self, start: V) -> list[V]:
+    def bfs(self, start: V, visited: set[V] | None = None) -> Iterator[V]:
         """
-        Performs a Breadth-First Search traversal.
+        Performs a Breadth-First Search traversal and yields vertices
 
         Args:
             start: The starting vertex for the traversal.
+            visited: An optional set of vertices that are already visited.
+                     Useful when running DFS on multiple connected components.
 
-        Returns:
-            A list of vertices in BFS traversal order.
+        Yields:
+            Vertices in BFS traversal order.
         """
         if start not in self._vertices:
-            return []
+            return
 
-        visited = {start}
+        if visited is None:
+            visited = set()
+
+        if start in visited:
+            return
+
+        visited.add(start)
         queue = deque([start])
-        result = []
 
         while queue:
             vertex = queue.popleft()
-            result.append(vertex)
+            yield vertex
 
             for neighbor in self.neighbors(vertex):
                 if neighbor not in visited:
                     visited.add(neighbor)
                     queue.append(neighbor)
 
-        return result
-
-    def connected_components(self) -> list[list[V]]:
+    def connected_components(self) -> Iterator[list[V]]:
         """
-        Finds all connected components in the graph.
+        Finds all connected components in the graph and yields them one by one as lists.
 
-        Returns:
-            A list of lists, where each inner list contains the vertices of a component.
+        This approach is highly memory-efficient for large graphs,
+        as it does not store all components in memory simultaneously.
+
+        Yields:
+            A list representing a single connected component.
         """
         visited = set()
-        components = []
 
         for vertex in self._vertices:
             if vertex not in visited:
-                component = self.dfs(vertex, visited)
-                if component:
-                    components.append(component)
-
-        return components
+                yield list(self.dfs(vertex, visited))
 
     def is_connected(self) -> bool:
         """Checks if the graph is connected."""
         if self.is_empty():
             return True
-        return len(self.connected_components()) <= 1
+        return len(list(self.connected_components())) <= 1
 
     def has_path(self, start: V, end: V) -> bool:
         """
@@ -400,11 +410,7 @@ class Graph(ABC, Generic[V, W]):
 
     def __repr__(self) -> str:
         class_name = self.__class__.__name__
-        directed = "directed" if self.is_directed() else "undirected"
-        return f"{class_name}({directed}, vertices={self.vertex_count}, edges={self.edge_count})"
-
-    def __str__(self) -> str:
-        return self.__repr__()
+        return f"{class_name}(vertices={self.vertex_count}, edges={self.edge_count})"
 
 
 class UndirectedGraph(Graph[V, W]):
@@ -459,7 +465,14 @@ class UndirectedGraph(Graph[V, W]):
 
     def degree(self, vertex: V) -> int:
         """Returns the degree of a vertex."""
-        return len(self._adjacency.get(vertex, set()))
+        degree_count = 0
+        for neighbor in self._adjacency.get(vertex, set()):
+            # A self-loop (A, A) means 'A' appears in its own adjacency list.
+            if neighbor == vertex:
+                degree_count += 2
+            else:
+                degree_count += 1
+        return degree_count
 
     def is_directed(self) -> bool:
         return False
@@ -642,12 +655,14 @@ def demo() -> None:
 
     # --- Traversal Algorithms ---
     print("\n--- Graph Traversal Algorithms ---")
-    print(f"DFS from 'A' in undirected graph: {ug.dfs('A')}")
-    print(f"BFS from 'A' in directed graph: {dg.bfs('A')}")
+    print(f"DFS from 'A' in undirected graph: {list(ug.dfs('A'))}")
+    print(f"BFS from 'A' in directed graph: {list(dg.bfs('A'))}")
 
     # --- Connectivity ---
     print("\n--- Connectivity ---")
-    print(f"Connected components in undirected graph: {ug.connected_components()}")
+    print(
+        f"Connected components in undirected graph: {list(ug.connected_components())}"
+    )
     print(f"Path exists from 'A' to 'D': {ug.has_path('A', 'D')}")
 
 
