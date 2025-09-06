@@ -15,9 +15,7 @@ class MultiHeadAttention(nn.Module):
 
     def __init__(self, d_model: int, num_heads: int) -> None:
         super().__init__()
-        assert d_model % num_heads == 0, (
-            f"d_model ({d_model}) must be divisible by num_heads ({num_heads})"
-        )
+        assert d_model % num_heads == 0, f"d_model ({d_model}) must be divisible by num_heads ({num_heads})"
 
         self.d_model = d_model
         self.num_heads = num_heads
@@ -38,9 +36,7 @@ class MultiHeadAttention(nn.Module):
             else:
                 nn.init.zeros_(p)
 
-    def attention(
-        self, q: Tensor, k: Tensor, v: Tensor, mask: Tensor | None = None
-    ) -> Tensor:
+    def attention(self, q: Tensor, k: Tensor, v: Tensor, mask: Tensor | None = None) -> Tensor:
         """计算缩放点积注意力，添加数值稳定性的处理
 
         参数:
@@ -84,15 +80,11 @@ class MultiHeadAttention(nn.Module):
         """
         return x.view(batch_size, -1, self.num_heads, self.d_k).transpose(1, 2)
 
-    def forward(
-        self, q: Tensor, k: Tensor, v: Tensor, mask: Tensor | None = None
-    ) -> Tensor:
+    def forward(self, q: Tensor, k: Tensor, v: Tensor, mask: Tensor | None = None) -> Tensor:
         batch_size = q.size(0)
 
         # 线性变换并分割注意力头
-        Q = self.split_heads(
-            self.W_q(q), batch_size
-        )  # (batch_size, num_heads, seq_len, d_k)
+        Q = self.split_heads(self.W_q(q), batch_size)  # (batch_size, num_heads, seq_len, d_k)
         K = self.split_heads(self.W_k(k), batch_size)
         V = self.split_heads(self.W_v(v), batch_size)
 
@@ -100,9 +92,7 @@ class MultiHeadAttention(nn.Module):
         attn_output = self.attention(Q, K, V, mask)
 
         # 合并注意力头
-        attn_output = (
-            attn_output.transpose(1, 2).contiguous().view(batch_size, -1, self.d_model)
-        )
+        attn_output = attn_output.transpose(1, 2).contiguous().view(batch_size, -1, self.d_model)
 
         return self.W_o(attn_output)
 
@@ -126,9 +116,7 @@ class FeedForward(nn.Module):
 class EncoderLayer(nn.Module):
     """Transformer编码器层"""
 
-    def __init__(
-        self, d_model: int, num_heads: int, d_ff: int, dropout: float = 0.1
-    ) -> None:
+    def __init__(self, d_model: int, num_heads: int, d_ff: int, dropout: float = 0.1) -> None:
         super().__init__()
         self.self_attn = MultiHeadAttention(d_model, num_heads)
         self.feed_forward = FeedForward(d_model, d_ff, dropout)
@@ -152,9 +140,7 @@ class EncoderLayer(nn.Module):
 class DecoderLayer(nn.Module):
     """Transformer解码器层"""
 
-    def __init__(
-        self, d_model: int, num_heads: int, d_ff: int, dropout: float = 0.1
-    ) -> None:
+    def __init__(self, d_model: int, num_heads: int, d_ff: int, dropout: float = 0.1) -> None:
         super().__init__()
         self.self_attn = MultiHeadAttention(d_model, num_heads)
         self.cross_attn = MultiHeadAttention(d_model, num_heads)
@@ -193,9 +179,7 @@ class PositionalEncoding(nn.Module):
         super().__init__()
         pe = torch.zeros(max_len, d_model)
         position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(
-            torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model)
-        )
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
 
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
@@ -233,17 +217,11 @@ class Transformer(nn.Module):
 
         # 编码器和解码器层
         self.encoder_layers = nn.ModuleList(
-            [
-                EncoderLayer(d_model, num_heads, d_ff, dropout)
-                for _ in range(num_encoder_layers)
-            ]
+            [EncoderLayer(d_model, num_heads, d_ff, dropout) for _ in range(num_encoder_layers)]
         )
 
         self.decoder_layers = nn.ModuleList(
-            [
-                DecoderLayer(d_model, num_heads, d_ff, dropout)
-                for _ in range(num_decoder_layers)
-            ]
+            [DecoderLayer(d_model, num_heads, d_ff, dropout) for _ in range(num_decoder_layers)]
         )
 
         # 输出层
@@ -263,20 +241,12 @@ class Transformer(nn.Module):
     def generate_square_subsequent_mask(sz: int) -> Tensor:
         """生成用于解码器的方形后续掩码"""
         mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
-        mask = (
-            mask.float()
-            .masked_fill(mask == 0, float("-inf"))
-            .masked_fill(mask == 1, 0.0)
-        )
+        mask = mask.float().masked_fill(mask == 0, float("-inf")).masked_fill(mask == 1, 0.0)
         return mask
 
     def encode(self, src: Tensor, src_mask: Tensor | None = None) -> Tensor:
         """编码器前向传播"""
-        src_embedded = self.dropout(
-            self.positional_encoding(
-                self.encoder_embedding(src) * math.sqrt(self.d_model)
-            )
-        )
+        src_embedded = self.dropout(self.positional_encoding(self.encoder_embedding(src) * math.sqrt(self.d_model)))
 
         enc_output = src_embedded
         for enc_layer in self.encoder_layers:
@@ -291,11 +261,7 @@ class Transformer(nn.Module):
         src_mask: Tensor | None = None,
     ) -> Tensor:
         """解码器前向传播"""
-        tgt_embedded = self.dropout(
-            self.positional_encoding(
-                self.decoder_embedding(tgt) * math.sqrt(self.d_model)
-            )
-        )
+        tgt_embedded = self.dropout(self.positional_encoding(self.decoder_embedding(tgt) * math.sqrt(self.d_model)))
 
         dec_output = tgt_embedded
         for dec_layer in self.decoder_layers:
@@ -315,9 +281,7 @@ class Transformer(nn.Module):
         return self.fc(dec_output)
 
 
-def create_mask(
-    src: Tensor, tgt: Tensor, pad_idx: int, device: torch.device
-) -> tuple[Tensor, Tensor]:
+def create_mask(src: Tensor, tgt: Tensor, pad_idx: int, device: torch.device) -> tuple[Tensor, Tensor]:
     """创建源序列和目标序列的掩码
 
     参数:
@@ -334,9 +298,7 @@ def create_mask(
     tgt_len = tgt.size(1)
 
     tgt_mask = (tgt != pad_idx).unsqueeze(1).unsqueeze(3)
-    subsequent_mask = torch.triu(
-        torch.ones((tgt_len, tgt_len), device=device), diagonal=1
-    ).bool()
+    subsequent_mask = torch.triu(torch.ones((tgt_len, tgt_len), device=device), diagonal=1).bool()
 
     tgt_mask = tgt_mask & ~subsequent_mask
 
@@ -376,9 +338,7 @@ def demo() -> None:
     print(f"\nTotal parameters: {total_params:,}")
 
     # 创建优化器，使用更小的学习率
-    optimizer = torch.optim.Adam(
-        model.parameters(), lr=0.0001, betas=(0.9, 0.98), eps=1e-9
-    )
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, betas=(0.9, 0.98), eps=1e-9)
 
     # 创建示例数据
     src = torch.tensor([[1, 2, 3, 4], [5, 6, 7, 8]], device=device)
@@ -416,9 +376,7 @@ def demo() -> None:
 
         # 计算损失
         criterion = nn.CrossEntropyLoss(ignore_index=0, label_smoothing=0.1)
-        loss = criterion(
-            output.reshape(-1, params["tgt_vocab_size"]), tgt_true.reshape(-1)
-        )
+        loss = criterion(output.reshape(-1, params["tgt_vocab_size"]), tgt_true.reshape(-1))
 
         # 检查损失是否为NaN
         if torch.isnan(loss):
@@ -432,9 +390,7 @@ def demo() -> None:
         grad_norm = check_grad_norm()
 
         # 梯度裁剪
-        torch.nn.utils.clip_grad_norm_(
-            model.parameters(), max_norm=0.5
-        )  # 使用更小的max_norm
+        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=0.5)  # 使用更小的max_norm
 
         optimizer.step()
 

@@ -28,9 +28,7 @@ class PositionalEncoding(nn.Module):
         position = torch.arange(0, max_seq_length, dtype=torch.float).unsqueeze(1)
 
         # 创建除数矩阵
-        div_term = torch.exp(
-            torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model)
-        )
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
 
         # 计算位置编码
         pe[:, 0::2] = torch.sin(position * div_term)  # 偶数位置使用sin

@@ -29,7 +29,11 @@ class Edge(Generic[V, W]):
 
 # Exception hierarchy
 class GraphError(Exception): ...
+
+
 class VertexNotFoundError(GraphError): ...
+
+
 class EdgeNotFoundError(GraphError): ...
 
 
@@ -171,7 +175,7 @@ class Graph(ABC, Generic[V, W]):
         """True if graph is directed."""
 
     # Graph Algorithms
-    def depth_first_search(self, start: V, visited: set[V] | None = None) -> Iterator[V]:
+    def dfs(self, start: V, visited: set[V] | None = None) -> Iterator[V]:
         """
         Depth-first traversal yielding vertices in visit order.
 
@@ -202,7 +206,7 @@ class Graph(ABC, Generic[V, W]):
                 if neighbor not in visited:
                     stack.append(neighbor)
 
-    def breadth_first_search(self, start: V, visited: set[V] | None = None) -> Iterator[V]:
+    def bfs(self, start: V, visited: set[V] | None = None) -> Iterator[V]:
         """
         Breadth-first traversal yielding vertices in visit order.
 
@@ -230,10 +234,6 @@ class Graph(ABC, Generic[V, W]):
                 if neighbor not in visited:
                     visited.add(neighbor)
                     queue.append(neighbor)
-
-    # Aliases for common usage
-    dfs = depth_first_search
-    bfs = breadth_first_search
 
     def connected_components(self) -> Iterator[list[V]]:
         """
@@ -483,8 +483,7 @@ def demo() -> None:
     ug = UndirectedGraph[str, int]()
 
     # Add edges with weights
-    social_network = [("Alice", "Bob", 5), ("Alice", "Charlie", 3),
-                      ("Bob", "David", 7), ("Charlie", "David", 2)]
+    social_network = [("Alice", "Bob", 5), ("Alice", "Charlie", 3), ("Bob", "David", 7), ("Charlie", "David", 2)]
     added = ug.add_edges(social_network)
     print(f"Created social network: {added} edges added")
     print(f"Network info: {ug}")
@@ -496,8 +495,13 @@ def demo() -> None:
     print("\n--- Directed Graph (Task Dependencies) ---")
     dg = DirectedGraph[str, int]()
 
-    tasks = [("Design", "Code"), ("Code", "Test"), ("Test", "Deploy"),
-             ("Design", "Documentation"), ("Documentation", "Deploy")]
+    tasks = [
+        ("Design", "Code"),
+        ("Code", "Test"),
+        ("Test", "Deploy"),
+        ("Design", "Documentation"),
+        ("Documentation", "Deploy"),
+    ]
     dg.add_edges(tasks)
 
     print(f"Task graph: {dg}")

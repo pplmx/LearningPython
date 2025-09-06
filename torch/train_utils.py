@@ -51,9 +51,7 @@ class ScheduledOptim:
         # 预热阶段前后使用不同的计算公式
         step_scale = min(
             math.sqrt(1.0 / max(1, self.current_steps)),  # 预热后的下降曲线
-            math.sqrt(
-                self.current_steps / max(1, self.warmup_steps**3)
-            ),  # 预热阶段的上升曲线
+            math.sqrt(self.current_steps / max(1, self.warmup_steps**3)),  # 预热阶段的上升曲线
         )
 
         return step_scale * d_scale
@@ -179,11 +177,7 @@ def training_tools_demo():
         scheduler.step_and_update_lr()
 
         # 打印训练信息
-        print(
-            f"Epoch: {epoch + 1}, "
-            f"Loss: {loss.item():.4f}, "
-            f"LR: {scheduler.optimizer.param_groups[0]['lr']:.6f}"
-        )
+        print(f"Epoch: {epoch + 1}, Loss: {loss.item():.4f}, LR: {scheduler.optimizer.param_groups[0]['lr']:.6f}")
 
 
 if __name__ == "__main__":

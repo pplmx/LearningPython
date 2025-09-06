@@ -38,9 +38,7 @@ def multi_head_attention_demo():
     # 这里使用自注意力机制，所以query、key、value都是同一个输入
     # output shape: (sequence_length, batch_size, hidden_size)
     # attention_weights shape: (batch_size, sequence_length, sequence_length)
-    output, attention_weights = multi_head_attn(
-        query=input_tensor, key=input_tensor, value=input_tensor
-    )
+    output, attention_weights = multi_head_attn(query=input_tensor, key=input_tensor, value=input_tensor)
 
     print(f"\nOutput shape: {output.shape}")
     print(f"Attention weights shape: {attention_weights.shape}")

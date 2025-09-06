@@ -190,9 +190,7 @@ def test_singletons():
     decorator1 = DecoratorSingleton("装饰器实例")
     decorator2 = DecoratorSingleton("另一个装饰器实例")
 
-    print(
-        f"decorator1 和 decorator2 是同一个对象吗？{decorator1 is decorator2}"
-    )  # True
+    print(f"decorator1 和 decorator2 是同一个对象吗？{decorator1 is decorator2}")  # True
     print(f"decorator1.display_value(): {decorator1.display_value()}")
     print(f"decorator2.display_value(): {decorator2.display_value()}")  # 同一个对象
 

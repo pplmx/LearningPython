@@ -74,9 +74,7 @@ def animate_doraemon(image_path, num_frames=200):
         line.set_data(reconstructed_curve.real, reconstructed_curve.imag)
         return (line,)
 
-    anim = FuncAnimation(
-        fig, update, frames=num_frames, init_func=init, blit=True, repeat=False
-    )
+    anim = FuncAnimation(fig, update, frames=num_frames, init_func=init, blit=True, repeat=False)
     plt.show()
 
     return anim

@@ -4,9 +4,7 @@ import numpy as np
 from ipywidgets import IntSlider, fixed, interact
 
 
-def extract_and_display_contours(
-    image_path, canny_threshold1, canny_threshold2, kernel_size, iterations
-):
+def extract_and_display_contours(image_path, canny_threshold1, canny_threshold2, kernel_size, iterations):
     image = cv2.imread(image_path)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -45,15 +43,9 @@ def interactive_contours(image_path):
     interact(
         extract_and_display_contours,
         image_path=fixed(image_path),
-        canny_threshold1=IntSlider(
-            min=0, max=255, step=1, value=100, description="Canny Threshold 1"
-        ),
-        canny_threshold2=IntSlider(
-            min=0, max=255, step=1, value=200, description="Canny Threshold 2"
-        ),
-        kernel_size=IntSlider(
-            min=1, max=10, step=1, value=3, description="Kernel Size"
-        ),
+        canny_threshold1=IntSlider(min=0, max=255, step=1, value=100, description="Canny Threshold 1"),
+        canny_threshold2=IntSlider(min=0, max=255, step=1, value=200, description="Canny Threshold 2"),
+        kernel_size=IntSlider(min=1, max=10, step=1, value=3, description="Kernel Size"),
         iterations=IntSlider(min=1, max=10, step=1, value=1, description="Iterations"),
     )
 

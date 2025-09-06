@@ -27,12 +27,7 @@ class Solution:
         for i in range(length):
             for j in range(1, length):
                 for k in range(2, length):
-                    if (
-                        nums[i] + nums[j] + nums[k] == 0
-                        and i != j
-                        and j != k
-                        and i != k
-                    ):
+                    if nums[i] + nums[j] + nums[k] == 0 and i != j and j != k and i != k:
                         tmp = tuple(sorted((nums[i], nums[j], nums[k])))
                         ret_set |= {tmp}
         return [[i, j, k] for i, j, k in ret_set]

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 import pytest
-from graph_03 import (
+from graph import (
     DirectedGraph,
     Edge,
     EdgeNotFoundError,

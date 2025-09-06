@@ -54,9 +54,7 @@ class DecoderLayer(nn.Module):
         x = self.norm1(x + self.dropout(self_attn_out))
 
         # 交叉注意力
-        cross_attn_out, _ = self.cross_attn(
-            x, enc_output, enc_output, key_padding_mask=src_mask
-        )
+        cross_attn_out, _ = self.cross_attn(x, enc_output, enc_output, key_padding_mask=src_mask)
         x = self.norm2(x + self.dropout(cross_attn_out))
 
         # 前馈网络
@@ -92,9 +90,7 @@ def decoder_layer_demo():
     print(f"Encoder output shape: {encoder_output.shape}")
 
     # 创建目标序列掩码（防止看到未来信息）
-    tgt_mask = torch.triu(
-        torch.ones(seq_length, seq_length) * float("-inf"), diagonal=1
-    )
+    tgt_mask = torch.triu(torch.ones(seq_length, seq_length) * float("-inf"), diagonal=1)
     print("\nTarget mask shape:", tgt_mask.shape)
     print("Target mask (上三角为-inf，表示不能看到未来信息):")
     print(tgt_mask[:5, :5])  # 只打印一部分

@@ -207,10 +207,7 @@ class GradientDescentOptimizer:
 
             # 打印进度
             if i % 10 == 0:
-                print(
-                    f"迭代 {i:4d}: x={x:8.4f}, y={y:8.4f}, z={z:8.4f}, "
-                    f"梯度范数={np.sqrt(dx**2 + dy**2):8.4f}"
-                )
+                print(f"迭代 {i:4d}: x={x:8.4f}, y={y:8.4f}, z={z:8.4f}, 梯度范数={np.sqrt(dx**2 + dy**2):8.4f}")
 
         final_z = NonlinearFunction.evaluate(x, y)
         print(f"""
@@ -250,9 +247,7 @@ def demo():
     """)
 
     # 创建优化器并运行
-    optimizer = GradientDescentOptimizer(
-        learning_rate=0.1, momentum=0.9, max_iterations=500, tolerance=1e-6
-    )
+    optimizer = GradientDescentOptimizer(learning_rate=0.1, momentum=0.9, max_iterations=500, tolerance=1e-6)
 
     # 执行优化
     optimizer.optimize(x0, y0)

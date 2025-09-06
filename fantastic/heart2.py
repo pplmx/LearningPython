@@ -203,9 +203,7 @@ class HeartApp:
         x = (screen_width - CONFIG["DIALOG_WIDTH"]) // 2
         y = (screen_height - CONFIG["DIALOG_HEIGHT"]) // 2
 
-        self.root.geometry(
-            f"{CONFIG['DIALOG_WIDTH']}x{CONFIG['DIALOG_HEIGHT']}+{x}+{y}"
-        )
+        self.root.geometry(f"{CONFIG['DIALOG_WIDTH']}x{CONFIG['DIALOG_HEIGHT']}+{x}+{y}")
         self.root.title("❤ Love Message ❤")
         self.root.resizable(False, False)
 
@@ -312,9 +310,7 @@ class HeartApp:
         heart_window.protocol("WM_DELETE_WINDOW", self.root.quit)
 
         # 绑定ESC键退出全屏
-        heart_window.bind(
-            "<Escape>", lambda e: heart_window.attributes("-fullscreen", False)
-        )
+        heart_window.bind("<Escape>", lambda e: heart_window.attributes("-fullscreen", False))
 
     def _create_love_message(self, window: tk.Tk) -> None:
         """创建爱心消息"""
@@ -365,10 +361,7 @@ class HeartApp:
             if isinstance(widget, tk.Frame):
                 # 遍历框架中的按钮
                 for button in widget.winfo_children():
-                    if (
-                        isinstance(button, tk.Button)
-                        and button.cget("text") == "再想想 💭"
-                    ):
+                    if isinstance(button, tk.Button) and button.cget("text") == "再想想 💭":
                         # 移动按钮位置的随机范围
                         x = random.randint(0, CONFIG["DIALOG_WIDTH"] - 100)
                         y = random.randint(0, CONFIG["DIALOG_HEIGHT"] - 50)

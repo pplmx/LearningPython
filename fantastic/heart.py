@@ -41,9 +41,7 @@ class HeartAnimation:
         self._initialize_points()
         self._generate_frames()
 
-    def _heart_function(
-        self, t: float, scale: float = CONFIG["HEART_SCALE"]
-    ) -> tuple[int, int]:
+    def _heart_function(self, t: float, scale: float = CONFIG["HEART_SCALE"]) -> tuple[int, int]:
         """生成心形曲线的点"""
         x = 16 * (sin(t) ** 3)
         y = -(13 * cos(t) - 5 * cos(2 * t) - 2 * cos(3 * t) - cos(4 * t))
@@ -51,9 +49,7 @@ class HeartAnimation:
         y = y * scale + self.heart_y
         return int(x), int(y)
 
-    def _scatter_point(
-        self, x: float, y: float, beta: float = 0.15
-    ) -> tuple[float, float]:
+    def _scatter_point(self, x: float, y: float, beta: float = 0.15) -> tuple[float, float]:
         """散射效果"""
         ratio_x = -beta * log(random.random())
         ratio_y = -beta * log(random.random())
@@ -124,9 +120,7 @@ class HeartAnimation:
 
         self.frame_points[frame] = frame_points
 
-    def _calculate_position(
-        self, x: float, y: float, ratio: float
-    ) -> tuple[float, float]:
+    def _calculate_position(self, x: float, y: float, ratio: float) -> tuple[float, float]:
         """计算点的新位置"""
         force = 1 / (((x - self.heart_x) ** 2 + (y - self.heart_y) ** 2) ** 0.520)
         dx = ratio * force * (x - self.heart_x) + random.randint(-1, 1)
@@ -173,9 +167,7 @@ class HeartApp:
         x = (screen_width - CONFIG["DIALOG_WIDTH"]) // 2
         y = (screen_height - CONFIG["DIALOG_HEIGHT"]) // 2
 
-        self.root.geometry(
-            f"{CONFIG['DIALOG_WIDTH']}x{CONFIG['DIALOG_HEIGHT']}+{x}+{y}"
-        )
+        self.root.geometry(f"{CONFIG['DIALOG_WIDTH']}x{CONFIG['DIALOG_HEIGHT']}+{x}+{y}")
         self.root.title("❤ Love Message ❤")
         self.root.resizable(False, False)
         self.root.configure(bg="#FFE4E1")  # 浅粉色背景
@@ -233,9 +225,7 @@ class HeartApp:
         x = (screen_width - CONFIG["WINDOW_WIDTH"]) // 2
         y = (screen_height - CONFIG["WINDOW_HEIGHT"]) // 2
 
-        heart_window.geometry(
-            f"{CONFIG['WINDOW_WIDTH']}x{CONFIG['WINDOW_HEIGHT']}+{x}+{y}"
-        )
+        heart_window.geometry(f"{CONFIG['WINDOW_WIDTH']}x{CONFIG['WINDOW_HEIGHT']}+{x}+{y}")
         heart_window.title("❤ Love You ❤")
         heart_window.resizable(False, False)
 
@@ -267,9 +257,7 @@ class HeartApp:
     def _animate(self, window: tk.Tk, canvas: tk.Canvas, frame: int):
         """动画循环"""
         self.heart_animation.render(canvas, frame)
-        window.after(
-            CONFIG["ANIMATION_SPEED"], self._animate, window, canvas, frame + 1
-        )
+        window.after(CONFIG["ANIMATION_SPEED"], self._animate, window, canvas, frame + 1)
 
     def _on_accept(self):
         """接受按钮回调"""
