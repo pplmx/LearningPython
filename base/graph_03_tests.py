@@ -95,7 +95,7 @@ class TestUndirectedGraph:
         graph = UndirectedGraph[str, int]()
         assert graph.vertex_count == 0
         assert graph.edge_count == 0
-        assert graph.is_empty()
+        assert graph.is_empty
         assert not graph.is_directed()
 
     def test_vertex_operations(self):
@@ -178,7 +178,7 @@ class TestUndirectedGraph:
         graph.add_edge("A", "B", 5)
         graph.add_edge("A", "C", 10)
 
-        incident_edges = list(graph.get_incident_edges("A"))
+        incident_edges = list(graph.incident_edges("A"))
         assert len(incident_edges) == 2
 
         edge_weights = {edge.weight for edge in incident_edges}
@@ -278,7 +278,7 @@ class TestDirectedGraph:
         graph.add_edge("A", "B", 5)
         graph.add_edge("C", "A", 10)
 
-        incident_edges = list(graph.get_incident_edges("A"))
+        incident_edges = list(graph.incident_edges("A"))
         assert len(incident_edges) == 2  # One outgoing, one incoming
 
         # Check that we get both directions
@@ -570,7 +570,7 @@ class TestErrorHandling:
 
         assert list(graph.neighbors("A")) == []
         assert graph.degree("A") == 0
-        assert list(graph.get_incident_edges("A")) == []
+        assert list(graph.incident_edges("A")) == []
         assert graph["A"] == frozenset()
 
 
@@ -617,7 +617,7 @@ class TestPerformanceAndEdgeCases:
         graph.add_edges([("A", "B"), ("A", "C"), ("A", "D")])
 
         # This should not raise an error due to list conversion
-        incident_edges = list(graph.get_incident_edges("A"))
+        incident_edges = list(graph.incident_edges("A"))
         for edge in incident_edges:
             graph.remove_edge(edge.u, edge.v)
 

@@ -6,21 +6,14 @@ from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
 from typing import Generic, TypeVar
 
-# --- Type variable definitions ---
-V = TypeVar("V")  # Type for vertices
-W = TypeVar("W")  # Type for edge weights
+# Type variables
+V = TypeVar("V")  # Vertex type
+W = TypeVar("W")  # Weight type
 
 
 @dataclass(frozen=True, eq=True, slots=True)
 class Edge(Generic[V, W]):
-    """
-    Represents an immutable directed edge (u -> v) with an optional weight.
-
-    Args:
-        u: The source vertex.
-        v: The destination vertex.
-        weight: The weight of the edge, defaults to 1.
-    """
+    """Immutable directed edge with optional weight."""
 
     u: V
     v: V
@@ -30,32 +23,22 @@ class Edge(Generic[V, W]):
         return f"{self.u} --({self.weight})--> {self.v}"
 
     def reverse(self) -> Edge[V, W]:
-        """Returns the reversed edge."""
+        """Return edge with reversed direction."""
         return Edge(self.v, self.u, self.weight)
 
 
-class GraphError(Exception):
-    """Base class for exceptions related to graph operations."""
-
-    pass
-
-
-class VertexNotFoundError(GraphError):
-    """Raised when a vertex is not found in the graph."""
-
-    pass
-
-
-class EdgeNotFoundError(GraphError):
-    """Raised when an edge is not found in the graph."""
-
-    pass
+# Exception hierarchy
+class GraphError(Exception): ...
+class VertexNotFoundError(GraphError): ...
+class EdgeNotFoundError(GraphError): ...
 
 
 class Graph(ABC, Generic[V, W]):
     """
-    Abstract base class for a graph (directed or undirected).
-    Provides the core interface for graph operations and common algorithm implementations.
+    Abstract graph base class supporting both directed and undirected graphs.
+
+    Provides efficient vertex/edge management and common graph algorithms.
+    Uses generic types for vertices (V) and edge weights (W).
     """
 
     __slots__ = ("_vertices",)
@@ -63,18 +46,30 @@ class Graph(ABC, Generic[V, W]):
     def __init__(self) -> None:
         self._vertices: set[V] = set()
 
-    # --- Vertex Management ---
+    # Core Properties
+    @property
+    def vertices(self) -> frozenset[V]:
+        """Immutable view of all vertices."""
+        return frozenset(self._vertices)
 
+    @property
+    def vertex_count(self) -> int:
+        """Number of vertices in the graph."""
+        return len(self._vertices)
+
+    @property
+    @abstractmethod
+    def edge_count(self) -> int:
+        """Number of edges in the graph."""
+
+    @property
+    def is_empty(self) -> bool:
+        """True if graph has no vertices."""
+        return len(self._vertices) == 0
+
+    # Vertex Operations
     def add_vertex(self, vertex: V) -> bool:
-        """
-        Adds a vertex to the graph if it does not already exist.
-
-        Args:
-            vertex: The vertex to add.
-
-        Returns:
-            True if the vertex was added, False if it already existed.
-        """
+        """Add vertex if not exists. Returns True if added."""
         if vertex in self._vertices:
             return False
         self._vertices.add(vertex)
@@ -82,21 +77,12 @@ class Graph(ABC, Generic[V, W]):
         return True
 
     def remove_vertex(self, vertex: V) -> bool:
-        """
-        Removes a vertex and all its incident edges from the graph.
-
-        Args:
-            vertex: The vertex to remove.
-
-        Returns:
-            True if the vertex was removed, False if it did not exist.
-        """
+        """Remove vertex and all incident edges. Returns True if removed."""
         if vertex not in self._vertices:
             return False
 
-        # Collect incident edges first to avoid modification during iteration.
-        incident_edges = list(self.get_incident_edges(vertex))
-        for edge in incident_edges:
+        # Remove all incident edges before removing vertex
+        for edge in list(self.incident_edges(vertex)):
             self.remove_edge(edge.u, edge.v)
 
         self._vertices.remove(vertex)
@@ -104,36 +90,16 @@ class Graph(ABC, Generic[V, W]):
         return True
 
     def add_vertices(self, vertices: Iterable[V]) -> int:
-        """
-        Adds multiple vertices to the graph.
+        """Add multiple vertices. Returns count of vertices actually added."""
+        return sum(self.add_vertex(v) for v in vertices)
 
-        Args:
-            vertices: An iterable of vertices to add.
+    def has_vertex(self, vertex: V) -> bool:
+        """Check if vertex exists."""
+        return vertex in self._vertices
 
-        Returns:
-            The number of vertices that were actually added.
-        """
-        count = 0
-        for vertex in vertices:
-            if self.add_vertex(vertex):
-                count += 1
-        return count
-
-    # --- Edge Management ---
-
+    # Edge Operations
     def add_edge(self, u: V, v: V, weight: W = 1) -> bool:
-        """
-        Adds an edge (u -> v) to the graph.
-
-        Args:
-            u: The source vertex.
-            v: The destination vertex.
-            weight: The weight of the edge.
-
-        Returns:
-            True if the edge was added, False if it already existed.
-        """
-        # Automatically add vertices if they don't exist
+        """Add edge with automatic vertex creation. Returns True if added."""
         self.add_vertex(u)
         self.add_vertex(v)
 
@@ -144,151 +110,74 @@ class Graph(ABC, Generic[V, W]):
         return True
 
     def remove_edge(self, u: V, v: V) -> bool:
-        """
-        Removes the edge (u -> v) from the graph.
-
-        Args:
-            u: The source vertex.
-            v: The destination vertex.
-
-        Returns:
-            True if the edge was removed, False if it did not exist.
-        """
+        """Remove edge. Returns True if removed."""
         if not self.has_edge(u, v):
             return False
-
         self._on_edge_removed(u, v)
         return True
 
     def add_edges(self, edges: Iterable[tuple[V, V] | tuple[V, V, W]]) -> int:
-        """
-        Adds multiple edges to the graph.
-
-        Args:
-            edges: An iterable of edges, where each element is (u, v) or (u, v, weight).
-
-        Returns:
-            The number of edges that were actually added.
-        """
+        """Add multiple edges. Returns count of edges actually added."""
         count = 0
         for edge_data in edges:
             u, v, *rest = edge_data
             weight = rest[0] if rest else 1
-
             if self.add_edge(u, v, weight):
                 count += 1
         return count
 
-    # --- Property Queries ---
-
-    @property
-    def vertices(self) -> frozenset[V]:
-        """Returns an immutable view of the set of vertices."""
-        return frozenset(self._vertices)
-
-    @property
-    def vertex_count(self) -> int:
-        """Returns the number of vertices in the graph."""
-        return len(self._vertices)
-
-    @property
-    @abstractmethod
-    def edge_count(self) -> int:
-        """Returns the number of edges in the graph."""
-        ...
-
-    def is_empty(self) -> bool:
-        """Checks if the graph is empty (has no vertices)."""
-        return len(self._vertices) == 0
-
-    def has_vertex(self, vertex: V) -> bool:
-        """Checks if a vertex exists in the graph."""
-        return vertex in self._vertices
-
     def get_edge_weight(self, u: V, v: V) -> W:
-        """
-        Gets the weight of an edge.
-
-        Args:
-            u: The source vertex.
-            v: The destination vertex.
-
-        Returns:
-            The weight of the edge.
-
-        Raises:
-            EdgeNotFoundError: If the edge does not exist.
-        """
+        """Get edge weight. Raises EdgeNotFoundError if edge not found."""
         edge = self.get_edge(u, v)
         if edge is None:
             raise EdgeNotFoundError(f"Edge ({u}, {v}) not found")
         return edge.weight
 
-    # --- Abstract Methods (for subclass implementation) ---
-
+    # Abstract methods for subclasses
     @abstractmethod
     def _on_vertex_added(self, vertex: V) -> None:
-        """Callback executed when a vertex is added."""
-        ...
+        """Handle vertex addition in subclass."""
 
     @abstractmethod
     def _on_vertex_removed(self, vertex: V) -> None:
-        """Callback executed when a vertex is removed."""
-        ...
+        """Handle vertex removal in subclass."""
 
     @abstractmethod
     def _on_edge_added(self, u: V, v: V, weight: W) -> None:
-        """Callback executed when an edge is added."""
-        ...
+        """Handle edge addition in subclass."""
 
     @abstractmethod
     def _on_edge_removed(self, u: V, v: V) -> None:
-        """Callback executed when an edge is removed."""
-        ...
+        """Handle edge removal in subclass."""
 
     @abstractmethod
     def has_edge(self, u: V, v: V) -> bool:
-        """Checks if an edge exists between two vertices."""
-        ...
+        """Check if edge exists."""
 
     @abstractmethod
     def neighbors(self, vertex: V) -> Iterator[V]:
-        """Returns an iterator over the neighbors of a vertex."""
-        ...
+        """Iterate over vertex neighbors."""
 
     @abstractmethod
-    def get_incident_edges(self, vertex: V) -> Iterator[Edge[V, W]]:
-        """
-        Returns an iterator over all edges incident to a vertex.
-
-        Warning:
-            If you need to modify the graph during iteration, convert to a list() first.
-        """
-        ...
+    def incident_edges(self, vertex: V) -> Iterator[Edge[V, W]]:
+        """Iterate over all edges incident to vertex."""
 
     @abstractmethod
     def get_edge(self, u: V, v: V) -> Edge[V, W] | None:
-        """Returns the Edge object between two vertices, or None if it doesn't exist."""
-        ...
+        """Get edge object or None if not found."""
 
     @abstractmethod
     def is_directed(self) -> bool:
-        """Returns True if the graph is directed, False otherwise."""
-        ...
+        """True if graph is directed."""
 
-    # --- Graph Algorithms ---
-
-    def dfs(self, start: V, visited: set[V] | None = None) -> Iterator[V]:
+    # Graph Algorithms
+    def depth_first_search(self, start: V, visited: set[V] | None = None) -> Iterator[V]:
         """
-        Performs a Depth-First Search traversal and yields vertices.
+        Depth-first traversal yielding vertices in visit order.
 
         Args:
-            start: The starting vertex for the traversal.
-            visited: An optional set of vertices that are already visited.
-                     Useful when running DFS on multiple connected components.
-
-        Yields:
-            Vertices in DFS traversal order.
+            start: Starting vertex
+            visited: Pre-existing visited set (for multi-component traversal)
         """
         if start not in self._vertices:
             return
@@ -300,31 +189,26 @@ class Graph(ABC, Generic[V, W]):
             return
 
         stack = [start]
-
         while stack:
             vertex = stack.pop()
-
             if vertex in visited:
                 continue
 
             visited.add(vertex)
             yield vertex
 
+            # Add neighbors in reverse order for consistent traversal
             for neighbor in reversed(list(self.neighbors(vertex))):
                 if neighbor not in visited:
                     stack.append(neighbor)
 
-    def bfs(self, start: V, visited: set[V] | None = None) -> Iterator[V]:
+    def breadth_first_search(self, start: V, visited: set[V] | None = None) -> Iterator[V]:
         """
-        Performs a Breadth-First Search traversal and yields vertices
+        Breadth-first traversal yielding vertices in visit order.
 
         Args:
-            start: The starting vertex for the traversal.
-            visited: An optional set of vertices that are already visited.
-                     Useful when running DFS on multiple connected components.
-
-        Yields:
-            Vertices in BFS traversal order.
+            start: Starting vertex
+            visited: Pre-existing visited set (for multi-component traversal)
         """
         if start not in self._vertices:
             return
@@ -347,39 +231,28 @@ class Graph(ABC, Generic[V, W]):
                     visited.add(neighbor)
                     queue.append(neighbor)
 
+    # Aliases for common usage
+    dfs = depth_first_search
+    bfs = breadth_first_search
+
     def connected_components(self) -> Iterator[list[V]]:
         """
-        Finds all connected components in the graph and yields them one by one as lists.
-
-        This approach is highly memory-efficient for large graphs,
-        as it does not store all components in memory simultaneously.
-
-        Yields:
-            A list representing a single connected component.
+        Yield connected components as lists.
+        Memory-efficient for large graphs.
         """
         visited = set()
-
         for vertex in self._vertices:
             if vertex not in visited:
                 yield list(self.dfs(vertex, visited))
 
     def is_connected(self) -> bool:
-        """Checks if the graph is connected."""
-        if self.is_empty():
+        """True if graph is connected (single component)."""
+        if self.is_empty:
             return True
         return len(list(self.connected_components())) <= 1
 
     def has_path(self, start: V, end: V) -> bool:
-        """
-        Checks if a path exists between two vertices.
-
-        Args:
-            start: The starting vertex.
-            end: The ending vertex.
-
-        Returns:
-            True if a path exists, False otherwise.
-        """
+        """True if path exists between vertices."""
         if start not in self._vertices or end not in self._vertices:
             return False
         if start == end:
@@ -398,23 +271,26 @@ class Graph(ABC, Generic[V, W]):
                     queue.append(neighbor)
         return False
 
-    # --- Dunder Methods ---
-
+    # Python protocols
     def __contains__(self, vertex: V) -> bool:
-        """Supports 'vertex in graph' syntax."""
+        """Support 'vertex in graph' syntax."""
         return self.has_vertex(vertex)
 
     def __len__(self) -> int:
-        """Returns the number of vertices."""
+        """Return vertex count."""
         return self.vertex_count
 
     def __repr__(self) -> str:
-        class_name = self.__class__.__name__
-        return f"{class_name}(vertices={self.vertex_count}, edges={self.edge_count})"
+        return f"{self.__class__.__name__}(vertices={self.vertex_count}, edges={self.edge_count})"
 
 
 class UndirectedGraph(Graph[V, W]):
-    """An undirected graph implementation using an adjacency list."""
+    """
+    Undirected graph using adjacency lists.
+
+    Edges are bidirectional and stored once using frozenset keys.
+    Provides O(1) edge operations and O(degree) neighbor iteration.
+    """
 
     __slots__ = ("_adjacency", "_edges")
 
@@ -436,61 +312,57 @@ class UndirectedGraph(Graph[V, W]):
     def _on_edge_added(self, u: V, v: V, weight: W) -> None:
         self._adjacency[u].add(v)
         self._adjacency[v].add(u)
-        edge_key = frozenset({u, v})
-        self._edges[edge_key] = Edge(u, v, weight)
+        self._edges[frozenset({u, v})] = Edge(u, v, weight)
 
     def _on_edge_removed(self, u: V, v: V) -> None:
         self._adjacency[u].discard(v)
         self._adjacency[v].discard(u)
-        edge_key = frozenset({u, v})
-        self._edges.pop(edge_key, None)
+        self._edges.pop(frozenset({u, v}), None)
 
     def has_edge(self, u: V, v: V) -> bool:
         return frozenset({u, v}) in self._edges
 
     def neighbors(self, vertex: V) -> Iterator[V]:
-        """Returns an iterator over the neighbors of a vertex."""
         return iter(self._adjacency.get(vertex, set()))
 
-    def get_incident_edges(self, vertex: V) -> Iterator[Edge[V, W]]:
-        """Returns an iterator over all edges connected to the vertex."""
-        for neighbor in self._adjacency.get(vertex, set()):
-            edge = self.get_edge(vertex, neighbor)
-            if edge is not None:
+    def incident_edges(self, vertex: V) -> Iterator[Edge[V, W]]:
+        """Iterate over edges connected to vertex."""
+        vertex_set = {vertex}
+        for edge_key, edge in self._edges.items():
+            if edge_key & vertex_set:  # Intersection check
                 yield edge
 
     def get_edge(self, u: V, v: V) -> Edge[V, W] | None:
-        edge_key = frozenset({u, v})
-        return self._edges.get(edge_key)
+        return self._edges.get(frozenset({u, v}))
 
     def degree(self, vertex: V) -> int:
-        """Returns the degree of a vertex."""
-        degree_count = 0
-        for neighbor in self._adjacency.get(vertex, set()):
-            # A self-loop (A, A) means 'A' appears in its own adjacency list.
-            if neighbor == vertex:
-                degree_count += 2
-            else:
-                degree_count += 1
-        return degree_count
+        """Vertex degree (number of incident edges)."""
+        neighbors = self._adjacency.get(vertex, set())
+        # Count self-loops twice
+        return len(neighbors) + (1 if vertex in neighbors else 0)
 
     def is_directed(self) -> bool:
         return False
 
     def __getitem__(self, vertex: V) -> frozenset[V]:
-        """Returns an immutable set of neighbors for a vertex."""
+        """Get neighbors as immutable set."""
         return frozenset(self._adjacency.get(vertex, set()))
 
 
 class DirectedGraph(Graph[V, W]):
-    """A directed graph implementation using separate adjacency lists for successors and predecessors."""
+    """
+    Directed graph using separate in/out adjacency lists.
 
-    __slots__ = ("_out_adjacency", "_in_adjacency", "_edges")
+    Maintains both successors and predecessors for efficient queries.
+    Provides O(1) edge operations and supports DAG algorithms.
+    """
+
+    __slots__ = ("_successors", "_predecessors", "_edges")
 
     def __init__(self) -> None:
         super().__init__()
-        self._out_adjacency: dict[V, set[V]] = defaultdict(set)
-        self._in_adjacency: dict[V, set[V]] = defaultdict(set)
+        self._successors: dict[V, set[V]] = defaultdict(set)
+        self._predecessors: dict[V, set[V]] = defaultdict(set)
         self._edges: dict[tuple[V, V], Edge[V, W]] = {}
 
     @property
@@ -498,60 +370,56 @@ class DirectedGraph(Graph[V, W]):
         return len(self._edges)
 
     def _on_vertex_added(self, vertex: V) -> None:
-        self._out_adjacency.setdefault(vertex, set())
-        self._in_adjacency.setdefault(vertex, set())
+        self._successors.setdefault(vertex, set())
+        self._predecessors.setdefault(vertex, set())
 
     def _on_vertex_removed(self, vertex: V) -> None:
-        self._out_adjacency.pop(vertex, None)
-        self._in_adjacency.pop(vertex, None)
+        self._successors.pop(vertex, None)
+        self._predecessors.pop(vertex, None)
 
     def _on_edge_added(self, u: V, v: V, weight: W) -> None:
-        self._out_adjacency[u].add(v)
-        self._in_adjacency[v].add(u)
+        self._successors[u].add(v)
+        self._predecessors[v].add(u)
         self._edges[(u, v)] = Edge(u, v, weight)
 
     def _on_edge_removed(self, u: V, v: V) -> None:
-        self._out_adjacency[u].discard(v)
-        self._in_adjacency[v].discard(u)
+        self._successors[u].discard(v)
+        self._predecessors[v].discard(u)
         self._edges.pop((u, v), None)
 
     def has_edge(self, u: V, v: V) -> bool:
         return (u, v) in self._edges
 
     def neighbors(self, vertex: V) -> Iterator[V]:
-        """Returns an iterator over the successors (out-neighbors) of a vertex."""
-        return iter(self._out_adjacency.get(vertex, set()))
+        """Iterate over successors (outgoing neighbors)."""
+        return iter(self._successors.get(vertex, set()))
 
     def predecessors(self, vertex: V) -> Iterator[V]:
-        """Returns an iterator over the predecessors (in-neighbors) of a vertex."""
-        return iter(self._in_adjacency.get(vertex, set()))
+        """Iterate over predecessors (incoming neighbors)."""
+        return iter(self._predecessors.get(vertex, set()))
 
-    def get_incident_edges(self, vertex: V) -> Iterator[Edge[V, W]]:
-        """Returns an iterator over all incoming and outgoing edges for a vertex."""
+    def incident_edges(self, vertex: V) -> Iterator[Edge[V, W]]:
+        """Iterate over all incident edges (incoming + outgoing)."""
         # Outgoing edges
-        for successor in self._out_adjacency.get(vertex, set()):
-            edge = self.get_edge(vertex, successor)
-            if edge is not None:
-                yield edge
+        for v in self._successors.get(vertex, set()):
+            yield self._edges[(vertex, v)]
         # Incoming edges
-        for predecessor in self._in_adjacency.get(vertex, set()):
-            edge = self.get_edge(predecessor, vertex)
-            if edge is not None:
-                yield edge
+        for u in self._predecessors.get(vertex, set()):
+            yield self._edges[(u, vertex)]
 
     def get_edge(self, u: V, v: V) -> Edge[V, W] | None:
         return self._edges.get((u, v))
 
     def out_degree(self, vertex: V) -> int:
-        """Returns the out-degree of a vertex."""
-        return len(self._out_adjacency.get(vertex, set()))
+        """Number of outgoing edges."""
+        return len(self._successors.get(vertex, set()))
 
     def in_degree(self, vertex: V) -> int:
-        """Returns the in-degree of a vertex."""
-        return len(self._in_adjacency.get(vertex, set()))
+        """Number of incoming edges."""
+        return len(self._predecessors.get(vertex, set()))
 
     def degree(self, vertex: V) -> int:
-        """Returns the total degree (in-degree + out-degree) of a vertex."""
+        """Total degree (in + out)."""
         return self.in_degree(vertex) + self.out_degree(vertex)
 
     def is_directed(self) -> bool:
@@ -559,10 +427,8 @@ class DirectedGraph(Graph[V, W]):
 
     def topological_sort(self) -> list[V] | None:
         """
-        Performs a topological sort of the graph.
-
-        Returns:
-            A list of vertices in topological order, or None if the graph has a cycle.
+        Return topological ordering or None if graph has cycles.
+        Uses Kahn's algorithm for O(V + E) complexity.
         """
         in_degree = {v: self.in_degree(v) for v in self._vertices}
         queue = deque(v for v, deg in in_degree.items() if deg == 0)
@@ -579,11 +445,11 @@ class DirectedGraph(Graph[V, W]):
         return result if len(result) == len(self._vertices) else None
 
     def is_acyclic(self) -> bool:
-        """Checks if the directed graph is acyclic (is a DAG)."""
+        """True if graph is a DAG (Directed Acyclic Graph)."""
         return self.topological_sort() is not None
 
     def reverse(self) -> DirectedGraph[V, W]:
-        """Returns a new graph with all edge directions reversed."""
+        """Return new graph with all edges reversed."""
         reversed_graph = DirectedGraph[V, W]()
         reversed_graph.add_vertices(self._vertices)
         for edge in self._edges.values():
@@ -591,79 +457,65 @@ class DirectedGraph(Graph[V, W]):
         return reversed_graph
 
     def __getitem__(self, vertex: V) -> dict[str, frozenset[V]]:
-        """Returns the sets of in-neighbors and out-neighbors for a vertex."""
+        """Get predecessors and successors as immutable sets."""
         return {
-            "out": frozenset(self._out_adjacency.get(vertex, set())),
-            "in": frozenset(self._in_adjacency.get(vertex, set())),
+            "in": frozenset(self._predecessors.get(vertex, set())),
+            "out": frozenset(self._successors.get(vertex, set())),
         }
-
-
-# --- Factory Function ---
 
 
 def create_graph(directed: bool = False) -> DirectedGraph | UndirectedGraph:
     """
-    Factory function to create a graph.
-    Note: Type information is lost. Prefer direct instantiation like `UndirectedGraph[str, int]()`.
+    Factory function for graph creation.
+
+    Note: Direct instantiation (e.g., UndirectedGraph[str, int]())
+    preserves type information and is preferred.
     """
     return DirectedGraph() if directed else UndirectedGraph()
 
 
-# --- Demo ---
-
-
 def demo() -> None:
-    """Demonstrates the functionality of the graph data structures."""
-    print("=== Optimized Graph Data Structure Demo ===\n")
+    """Demonstrate graph functionality with comprehensive examples."""
+    print("=== Graph Data Structure Demo ===\n")
 
-    # --- Undirected Graph Demo ---
+    # Undirected graph example
     print("--- Undirected Graph ---")
     ug = UndirectedGraph[str, int]()
 
-    edges = [("A", "B", 5), ("A", "C", 3), ("B", "D", 7), ("C", "D", 2)]
-    added_count = ug.add_edges(edges)
-    print(f"Added {added_count} edges.")
-
-    print(f"Graph info: {ug}")
-    print(f"Vertices: {ug.vertices}")
-    print(f"Neighbors of 'A': {list(ug.neighbors('A'))}")
-    print(f"Degree of 'A': {ug.degree('A')}")
+    # Add edges with weights
+    social_network = [("Alice", "Bob", 5), ("Alice", "Charlie", 3),
+                      ("Bob", "David", 7), ("Charlie", "David", 2)]
+    added = ug.add_edges(social_network)
+    print(f"Created social network: {added} edges added")
+    print(f"Network info: {ug}")
+    print(f"Alice's friends: {list(ug.neighbors('Alice'))}")
+    print(f"Alice's degree: {ug.degree('Alice')}")
     print(f"Is connected: {ug.is_connected()}")
 
-    try:
-        weight = ug.get_edge_weight("A", "B")
-        print(f"Weight of edge (A,B): {weight}")
-    except EdgeNotFoundError as e:
-        print(f"Error: {e}")
-
-    # --- Directed Graph Demo ---
-    print("\n--- Directed Graph ---")
+    # Directed graph example
+    print("\n--- Directed Graph (Task Dependencies) ---")
     dg = DirectedGraph[str, int]()
 
-    dag_edges = [("A", "B"), ("A", "C"), ("B", "D"), ("C", "D"), ("D", "E")]
-    dg.add_edges(dag_edges)
+    tasks = [("Design", "Code"), ("Code", "Test"), ("Test", "Deploy"),
+             ("Design", "Documentation"), ("Documentation", "Deploy")]
+    dg.add_edges(tasks)
 
-    print(f"Graph info: {dg}")
-    print(f"Successors of 'A': {list(dg.neighbors('A'))}")
-    print(f"Predecessors of 'D': {list(dg.predecessors('D'))}")
-    print(f"Degrees of 'B': out={dg.out_degree('B')}, in={dg.in_degree('B')}")
-    print(f"Is DAG: {dg.is_acyclic()}")
+    print(f"Task graph: {dg}")
+    print(f"Design leads to: {list(dg.neighbors('Design'))}")
+    print(f"Deploy depends on: {list(dg.predecessors('Deploy'))}")
 
-    topo_order = dg.topological_sort()
-    if topo_order:
-        print(f"Topological order: {topo_order}")
+    schedule = dg.topological_sort()
+    print(f"Task execution order: {schedule}")
+    print(f"Is valid workflow (no cycles): {dg.is_acyclic()}")
 
-    # --- Traversal Algorithms ---
-    print("\n--- Graph Traversal Algorithms ---")
-    print(f"DFS from 'A' in undirected graph: {list(ug.dfs('A'))}")
-    print(f"BFS from 'A' in directed graph: {list(dg.bfs('A'))}")
+    # Traversal algorithms
+    print("\n--- Graph Traversal ---")
+    print(f"DFS from Alice: {list(ug.dfs('Alice'))}")
+    print(f"BFS from Design: {list(dg.bfs('Design'))}")
 
-    # --- Connectivity ---
-    print("\n--- Connectivity ---")
-    print(
-        f"Connected components in undirected graph: {list(ug.connected_components())}"
-    )
-    print(f"Path exists from 'A' to 'D': {ug.has_path('A', 'D')}")
+    # Connectivity analysis
+    print(f"\nSocial network components: {list(ug.connected_components())}")
+    print(f"Path Alice→David: {ug.has_path('Alice', 'David')}")
 
 
 if __name__ == "__main__":
