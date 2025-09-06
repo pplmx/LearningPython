@@ -13,7 +13,14 @@ W = TypeVar("W")  # Weight type
 
 @dataclass(frozen=True, eq=True, slots=True)
 class Edge(Generic[V, W]):
-    """Immutable directed edge with optional weight."""
+    """
+    An immutable directed edge (u -> v) with an optional weight.
+
+    Args:
+        u: The source vertex.
+        v: The destination vertex.
+        weight: The weight of the edge, defaults to 1.
+    """
 
     u: V
     v: V
