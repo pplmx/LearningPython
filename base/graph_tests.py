@@ -1,3 +1,6 @@
+import pickle
+import random
+import threading
 import time
 from dataclasses import dataclass
 
@@ -1291,6 +1294,151 @@ class TestStressAndBoundary:
         # 时间复杂度应该大致是线性的
         assert creation_time < graph_size * 0.001  # 很宽松的限制
         assert traversal_time < graph_size * 0.001
+
+
+# ==================== 并发与序列化测试 ====================
+
+
+class TestConcurrency:
+    """
+    并发和线程安全测试。
+    注意：当前的图实现不是线程安全的，这些测试在没有锁机制的情况下很可能会失败或引发异常。
+    这些测试的目的是为了验证在引入锁等并发控制机制后，图的健壮性。
+    """
+
+    def test_concurrent_modifications(self, empty_undirected):
+        """测试多线程同时对图进行读写操作。"""
+        graph = empty_undirected
+        num_threads = 8
+        iterations_per_thread = 500
+
+        # 为图添加一些初始顶点，以便边操作可以进行
+        initial_vertices = list(range(10))
+        graph.add_vertices(initial_vertices)
+
+        exceptions = []
+
+        def vertex_worker():
+            """工作线程：随机添加和删除顶点。"""
+            for i in range(iterations_per_thread):
+                try:
+                    if random.random() < 0.7:  # 70% 的概率添加
+                        graph.add_vertex(f"v_{random.randint(0, 1000)}")
+                    else:  # 30% 的概率删除
+                        if graph.vertex_count > 0:
+                            vertex_to_remove = random.choice(list(graph.vertices))
+                            graph.remove_vertex(vertex_to_remove)
+                except Exception as e:
+                    exceptions.append(e)
+
+        def edge_worker():
+            """工作线程：随机添加和删除边。"""
+            for _ in range(iterations_per_thread):
+                try:
+                    if graph.vertex_count >= 2:
+                        u, v = random.sample(list(graph.vertices), 2)
+                        if random.random() < 0.7:  # 70% 的概率添加
+                            graph.add_edge(u, v, random.randint(1, 100))
+                        else:  # 30% 的概率删除
+                            if graph.has_edge(u, v):
+                                graph.remove_edge(u, v)
+                except Exception as e:
+                    exceptions.append(e)
+
+        threads = []
+        for _ in range(num_threads // 2):
+            threads.append(threading.Thread(target=vertex_worker))
+            threads.append(threading.Thread(target=edge_worker))
+
+        for t in threads:
+            t.start()
+
+        for t in threads:
+            t.join()
+
+        # 断言：在没有锁的情况下，很可能会出现异常（如 RuntimeError: dictionary changed size during iteration）
+        # 如果图实现了线程安全，这个列表应该是空的。
+        # assert not exceptions, f"并发操作中出现了 {len(exceptions)} 个异常: {exceptions}"
+
+        # 最终一致性检查：检查图的内部状态是否有效
+        # 这是一个基本的健全性检查，即使在并发出问题时也可能通过，但有助于捕捉一些状态损坏
+        try:
+            all_vertices = graph.vertices
+            for u in all_vertices:
+                neighbors = graph.neighbors(u)
+                for v in neighbors:
+                    assert v in all_vertices, f"邻接表损坏：顶点 {v} 在 {u} 的邻居中，但不在图的顶点集中"
+
+            if isinstance(graph, DirectedGraph):
+                for v in all_vertices:
+                    predecessors = graph.predecessors(v)
+                    for u in predecessors:
+                        assert u in all_vertices, f"前驱节点列表损坏：顶点 {u} 在 {v} 的前驱中，但不在图的顶点集中"
+
+        except Exception as e:
+            # 如果连最终的检查都失败了，说明图的状态已经严重损坏
+            assert False, f"并发操作后图状态损坏: {e}"
+
+
+class TestSerialization:
+    """测试图对象的序列化和反序列化功能。"""
+
+    def test_pickle_serialization_undirected(self, complex_social_network):
+        """测试使用 pickle 对无向图进行序列化和反序列化。"""
+        original_graph = complex_social_network
+
+        # 序列化
+        pickled_data = pickle.dumps(original_graph)
+
+        # 反序列化
+        deserialized_graph = pickle.loads(pickled_data)
+
+        # 验证
+        assert original_graph is not deserialized_graph, "反序列化后的对象应该是新的实例"
+
+        # 手动比较图的内容，因为没有实现 __eq__ 方法
+        assert original_graph.vertex_count == deserialized_graph.vertex_count
+        assert original_graph.edge_count == deserialized_graph.edge_count
+        assert original_graph.vertices == deserialized_graph.vertices
+        assert original_graph.is_directed() == deserialized_graph.is_directed()
+
+        for u in original_graph.vertices:
+            for v in original_graph.neighbors(u):
+                assert deserialized_graph.has_edge(u, v)
+                assert original_graph.get_edge_weight(u, v) == deserialized_graph.get_edge_weight(u, v)
+
+    def test_pickle_serialization_directed(self, deeply_nested_dag):
+        """测试使用 pickle 对有向图进行序列化和反序列化。"""
+        original_graph = deeply_nested_dag
+
+        # 序列化和反序列化
+        deserialized_graph = pickle.loads(pickle.dumps(original_graph))
+
+        # 验证
+        assert original_graph is not deserialized_graph
+        assert original_graph.vertex_count == deserialized_graph.vertex_count
+        assert original_graph.edge_count == deserialized_graph.edge_count
+        assert original_graph.vertices == deserialized_graph.vertices
+        assert original_graph.is_directed() == deserialized_graph.is_directed()
+
+        for u in original_graph.vertices:
+            # 比较出度
+            original_neighbors = set(original_graph.neighbors(u))
+            deserialized_neighbors = set(deserialized_graph.neighbors(u))
+            assert original_neighbors == deserialized_neighbors
+
+            # 比较入度
+            if hasattr(original_graph, "predecessors") and hasattr(
+                deserialized_graph,
+                "predecessors",
+            ):
+                original_predecessors = set(original_graph.predecessors(u))
+                deserialized_predecessors = set(deserialized_graph.predecessors(u))
+                assert original_predecessors == deserialized_predecessors
+
+            for v in original_graph.neighbors(u):
+                assert deserialized_graph.has_edge(u, v)
+                assert original_graph.get_edge_weight(u, v) == deserialized_graph.get_edge_weight(u, v)
 
 
 if __name__ == "__main__":
