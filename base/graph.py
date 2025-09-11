@@ -143,34 +143,11 @@ class Graph(ABC, Generic[V, W]):
 
     def add_edges(self, edges: Iterable[tuple[V, V] | tuple[V, V, W]]) -> int:
         """Add multiple edges. Returns count of edges actually added."""
-        # Option 1:
-        # count = 0
-        # for edge_data in edges:
-        #     u, v, *rest = edge_data
-        #     weight = rest[0] if rest else 1
-        #     if self.add_edge(u, v, weight):
-        #         count += 1
-        # return count
-
-        # Option 2:
-        # First pass: collect all vertices
-        all_vertices = set()
-        edge_list = []
-
+        count = 0
         for edge_data in edges:
             u, v, *rest = edge_data
             weight = rest[0] if rest else 1
-            all_vertices.update([u, v])
-            edge_list.append((u, v, weight))
-
-        # Batch add vertices
-        self.add_vertices(all_vertices)
-
-        # Batch add edges
-        count = 0
-        for u, v, weight in edge_list:
-            if not self.has_edge(u, v):
-                self._on_edge_added(u, v, weight)
+            if self.add_edge(u, v, weight):
                 count += 1
         return count
 
