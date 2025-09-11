@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import json
 from abc import ABC, abstractmethod
 from collections import defaultdict, deque
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
-from typing import Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 # Type variables
 V = TypeVar("V")  # Vertex type
@@ -78,6 +79,19 @@ class Graph(ABC, Generic[V, W]):
         """True if graph has no vertices."""
         return len(self._vertices) == 0
 
+    @property
+    def density(self) -> float:
+        """Graph density (ratio of actual edges to maximum possible edges)."""
+        n = self.vertex_count
+        if n < 2:
+            return 0.0
+
+        max_edges = n * (n - 1)
+        if not self.is_directed():
+            max_edges //= 2
+
+        return self.edge_count / max_edges
+
     # Vertex Operations
     def add_vertex(self, vertex: V) -> bool:
         """Add vertex if not exists. Returns True if added."""
@@ -129,11 +143,34 @@ class Graph(ABC, Generic[V, W]):
 
     def add_edges(self, edges: Iterable[tuple[V, V] | tuple[V, V, W]]) -> int:
         """Add multiple edges. Returns count of edges actually added."""
-        count = 0
+        # Option 1:
+        # count = 0
+        # for edge_data in edges:
+        #     u, v, *rest = edge_data
+        #     weight = rest[0] if rest else 1
+        #     if self.add_edge(u, v, weight):
+        #         count += 1
+        # return count
+
+        # Option 2:
+        # First pass: collect all vertices
+        all_vertices = set()
+        edge_list = []
+
         for edge_data in edges:
             u, v, *rest = edge_data
             weight = rest[0] if rest else 1
-            if self.add_edge(u, v, weight):
+            all_vertices.update([u, v])
+            edge_list.append((u, v, weight))
+
+        # Batch add vertices
+        self.add_vertices(all_vertices)
+
+        # Batch add edges
+        count = 0
+        for u, v, weight in edge_list:
+            if not self.has_edge(u, v):
+                self._on_edge_added(u, v, weight)
                 count += 1
         return count
 
@@ -143,6 +180,44 @@ class Graph(ABC, Generic[V, W]):
         if edge is None:
             raise EdgeNotFoundError(f"Edge ({u}, {v}) not found")
         return edge.weight
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize graph to dictionary format."""
+        edges_data = []
+        processed_edges = set()
+
+        for vertex in self._vertices:
+            for edge in self.incident_edges(vertex):
+                edge_key = (edge.u, edge.v) if self.is_directed() else tuple(sorted([edge.u, edge.v]))
+                if edge_key not in processed_edges:
+                    edges_data.append({"u": edge.u, "v": edge.v, "weight": edge.weight})
+                    processed_edges.add(edge_key)
+
+        return {
+            "type": "directed" if self.is_directed() else "undirected",
+            "vertices": list(self._vertices),
+            "edges": edges_data,
+        }
+
+    def to_json(self, **kwargs) -> str:
+        """Serialize graph to JSON string."""
+        return json.dumps(self.to_dict(), **kwargs)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Graph[V, W]:
+        """Deserialize graph from dictionary."""
+        graph = cls()
+        graph.add_vertices(data["vertices"])
+
+        for edge_data in data["edges"]:
+            graph.add_edge(edge_data["u"], edge_data["v"], edge_data.get("weight"))
+
+        return graph
+
+    @classmethod
+    def from_json(cls, json_str: str) -> Graph[V, W]:
+        """Deserialize graph from JSON string."""
+        return cls.from_dict(json.loads(json_str))
 
     # Abstract methods for subclasses
     @abstractmethod
@@ -288,7 +363,7 @@ class Graph(ABC, Generic[V, W]):
         return self.vertex_count
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(vertices={self.vertex_count}, edges={self.edge_count})"
+        return f"{self.__class__.__name__}(vertices={self.vertex_count}, edges={self.edge_count}, density={self.density:.3f})"
 
 
 class UndirectedGraph(Graph[V, W]):
@@ -454,6 +529,45 @@ class DirectedGraph(Graph[V, W]):
     def is_acyclic(self) -> bool:
         """True if graph is a DAG (Directed Acyclic Graph)."""
         return self.topological_sort() is not None
+
+    def strongly_connected_components(self) -> list[list[V]]:
+        """Find strongly connected components using Tarjan's algorithm."""
+        index_counter = [0]
+        stack = []
+        lowlinks = {}
+        index = {}
+        on_stack = {}
+        components = []
+
+        def strongconnect(vertex):
+            index[vertex] = index_counter[0]
+            lowlinks[vertex] = index_counter[0]
+            index_counter[0] += 1
+            stack.append(vertex)
+            on_stack[vertex] = True
+
+            for neighbor in self.neighbors(vertex):
+                if neighbor not in index:
+                    strongconnect(neighbor)
+                    lowlinks[vertex] = min(lowlinks[vertex], lowlinks[neighbor])
+                elif on_stack[neighbor]:
+                    lowlinks[vertex] = min(lowlinks[vertex], index[neighbor])
+
+            if lowlinks[vertex] == index[vertex]:
+                component = []
+                while True:
+                    w = stack.pop()
+                    on_stack[w] = False
+                    component.append(w)
+                    if w == vertex:
+                        break
+                components.append(component)
+
+        for vertex in self._vertices:
+            if vertex not in index:
+                strongconnect(vertex)
+
+        return components
 
     def reverse(self) -> DirectedGraph[V, W]:
         """Return new graph with all edges reversed."""
