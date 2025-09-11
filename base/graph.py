@@ -530,44 +530,74 @@ class DirectedGraph(Graph[V, W]):
         """True if graph is a DAG (Directed Acyclic Graph)."""
         return self.topological_sort() is not None
 
-    def strongly_connected_components(self) -> list[list[V]]:
-        """Find strongly connected components using Tarjan's algorithm."""
-        index_counter = [0]
-        stack = []
-        lowlinks = {}
-        index = {}
-        on_stack = {}
-        components = []
+    def strongly_connected_components(self) -> Iterator[list[V]]:
+        """
+        Find strongly connected components using an iterative Tarjan's algorithm.
 
-        def strongconnect(vertex):
-            index[vertex] = index_counter[0]
-            lowlinks[vertex] = index_counter[0]
-            index_counter[0] += 1
-            stack.append(vertex)
-            on_stack[vertex] = True
+        Yields each component as a list of vertices, making it memory-efficient
+        for graphs with many components. Complexity: O(V + E).
+        """
+        index_counter = 0
+        scc_stack: list[V] = []
+        lowlinks: dict[V, int] = {}
+        index: dict[V, int] = {}
+        on_stack: dict[V, bool] = defaultdict(bool)
 
-            for neighbor in self.neighbors(vertex):
-                if neighbor not in index:
-                    strongconnect(neighbor)
-                    lowlinks[vertex] = min(lowlinks[vertex], lowlinks[neighbor])
-                elif on_stack[neighbor]:
-                    lowlinks[vertex] = min(lowlinks[vertex], index[neighbor])
-
-            if lowlinks[vertex] == index[vertex]:
-                component = []
-                while True:
-                    w = stack.pop()
-                    on_stack[w] = False
-                    component.append(w)
-                    if w == vertex:
-                        break
-                components.append(component)
+        # To manage the DFS traversal iteratively, we need to store the state
+        # of neighbor iteration for each vertex on the traversal path.
+        neighbor_iters: dict[V, Iterator[V]] = {}
 
         for vertex in self._vertices:
-            if vertex not in index:
-                strongconnect(vertex)
+            if vertex in index:
+                continue  # Skip already visited vertices
 
-        return components
+            # Start a new traversal from this unvisited vertex
+            traversal_stack: list[V] = [vertex]
+
+            while traversal_stack:
+                v = traversal_stack[-1]  # Peek at the top of the stack
+
+                # This is the first time we are seeing `v` in the current DFS path.
+                # This corresponds to the pre-order actions in a recursive DFS.
+                if v not in neighbor_iters:
+                    index[v] = index_counter
+                    lowlinks[v] = index_counter
+                    index_counter += 1
+                    scc_stack.append(v)
+                    on_stack[v] = True
+                    neighbor_iters[v] = self.neighbors(v)
+
+                # Explore the next neighbor of `v`
+                try:
+                    neighbor = next(neighbor_iters[v])
+
+                    if neighbor not in index:
+                        # If neighbor is unvisited, push it to the stack to visit next
+                        traversal_stack.append(neighbor)
+                    elif on_stack[neighbor]:
+                        # If neighbor is visited and on the scc_stack, update lowlink
+                        lowlinks[v] = min(lowlinks[v], index[neighbor])
+
+                except StopIteration:
+                    # All neighbors of `v` have been visited (post-order actions).
+                    traversal_stack.pop()
+
+                    if lowlinks[v] == index[v]:
+                        # `v` is the root of a strongly connected component
+                        component = []
+                        while True:
+                            w = scc_stack.pop()
+                            on_stack[w] = False
+                            component.append(w)
+                            if w == v:
+                                break
+                        yield component
+
+                    # After processing `v` and its children, if there's a parent on the
+                    # traversal stack, update its lowlink with `v`'s finalized lowlink.
+                    if traversal_stack:
+                        parent = traversal_stack[-1]
+                        lowlinks[parent] = min(lowlinks[parent], lowlinks[v])
 
     def reverse(self) -> DirectedGraph[V, W]:
         """Return new graph with all edges reversed."""
@@ -632,6 +662,18 @@ def demo() -> None:
     schedule = dg.topological_sort()
     print(f"Task execution order: {schedule}")
     print(f"Is valid workflow (no cycles): {dg.is_acyclic()}")
+
+    # Strongly Connected Components example
+    print("\n--- Strongly Connected Components ---")
+    scc_graph = DirectedGraph[int, int]()
+    scc_edges = [(1, 2), (2, 3), (3, 1), (3, 4), (4, 5), (5, 6), (6, 4), (6, 7)]
+    scc_graph.add_edges(scc_edges)
+    scc_graph.add_vertex(8)  # Add a disconnected vertex
+    print(f"SCC Graph: {scc_graph}")
+
+    # Using the new iterative method
+    components = list(scc_graph.strongly_connected_components())
+    print(f"Strongly connected components (iterative): {components}")
 
     # Traversal algorithms
     print("\n--- Graph Traversal ---")

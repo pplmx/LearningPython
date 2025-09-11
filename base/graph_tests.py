@@ -1,3 +1,4 @@
+import collections.abc
 import pickle
 import random
 import threading
@@ -60,7 +61,7 @@ class WeightedConnection:
             raise ValueError("Confidence must be between 0 and 1")
 
 
-# ==================== 原有 Fixtures ====================
+# ==================== Fixtures ====================
 
 
 @pytest.fixture
@@ -229,8 +230,7 @@ def large_graph() -> UndirectedGraph[int, int]:
     random.seed(42)  # 保证测试的一致性
 
     nodes = list(range(1000))
-    for node in nodes:
-        graph.add_vertex(node)
+    graph.add_vertices(nodes)
 
     # 随机添加 5000 条边
     for _ in range(5000):
@@ -241,7 +241,29 @@ def large_graph() -> UndirectedGraph[int, int]:
     return graph
 
 
-# ==================== 增强的测试类 ====================
+@pytest.fixture
+def scc_graph() -> DirectedGraph[str, int]:
+    """一个包含多个强连通分量的复杂有向图，用于测试。"""
+    graph = DirectedGraph[str, int]()
+    edges = [
+        # SCC 1: {A, B, C}
+        ("A", "B"),
+        ("B", "C"),
+        ("C", "A"),
+        # SCC 2: {D, E, F}
+        ("D", "E"),
+        ("E", "F"),
+        ("F", "D"),
+        # SCC 3: {G} (self-loop)
+        ("G", "G"),
+        # 连接 SCCs 的边
+        ("C", "D"),  # SCC1 -> SCC2
+        ("F", "G"),  # SCC2 -> SCC3
+    ]
+    graph.add_edges(edges)
+    # SCC 4: {H} (孤立顶点)
+    graph.add_vertex("H")
+    return graph
 
 
 class TestEdgeEnhancements:
@@ -625,9 +647,6 @@ class TestAlgorithms:
 
         # 孤立顶点到其他顶点无路径
         assert not disconnected_graph.has_path("G", "A")
-
-
-# 继续补全测试代码，添加到现有测试文件的末尾
 
 
 class TestDirectedGraph:
@@ -1439,6 +1458,97 @@ class TestSerialization:
             for v in original_graph.neighbors(u):
                 assert deserialized_graph.has_edge(u, v)
                 assert original_graph.get_edge_weight(u, v) == deserialized_graph.get_edge_weight(u, v)
+
+    def test_json_serialization_undirected(self, simple_undirected):
+        """新增：测试无向图到 JSON 的序列化和反序列化。"""
+        original_graph = simple_undirected
+        json_str = original_graph.to_json(indent=2)
+        assert '"type": "undirected"' in json_str
+        assert '"u": "A"' in json_str
+        assert '"v": "B"' in json_str
+        assert '"weight": 1' in json_str
+
+        deserialized_graph = UndirectedGraph.from_json(json_str)
+
+        assert isinstance(deserialized_graph, UndirectedGraph)
+        assert original_graph.vertices == deserialized_graph.vertices
+        assert original_graph.edge_count == deserialized_graph.edge_count
+        # 直接访问内部 _edges 仅用于测试验证
+        for edge in original_graph._edges.values():
+            assert deserialized_graph.has_edge(edge.u, edge.v)
+            assert deserialized_graph.get_edge_weight(edge.u, edge.v) == edge.weight
+
+    def test_json_serialization_directed(self, simple_directed):
+        """新增：测试有向图到 JSON 的序列化和反序列化。"""
+        original_graph = simple_directed
+        json_str = original_graph.to_json()
+        assert '"type": "directed"' in json_str
+
+        deserialized_graph = DirectedGraph.from_json(json_str)
+
+        assert isinstance(deserialized_graph, DirectedGraph)
+        assert original_graph.vertices == deserialized_graph.vertices
+        assert original_graph.edge_count == deserialized_graph.edge_count
+        # 直接访问内部 _edges 仅用于测试验证
+        for u, v in original_graph._edges:
+            assert deserialized_graph.has_edge(u, v)
+            assert deserialized_graph.get_edge_weight(u, v) == original_graph.get_edge_weight(u, v)
+
+    def test_json_serialization_empty_graph(self, empty_undirected):
+        """新增：测试空图的 JSON 序列化。"""
+        json_data = empty_undirected.to_dict()
+        assert json_data == {
+            "type": "undirected",
+            "vertices": [],
+            "edges": [],
+        }
+        deserialized_graph = UndirectedGraph.from_dict(json_data)
+        assert deserialized_graph.is_empty
+
+
+class TestSCCAlgorithm:
+    """针对强连通分量 (SCC) 算法的专项测试。"""
+
+    def test_scc_on_complex_graph(self, scc_graph):
+        """测试在复杂图上正确识别所有强连通分量。"""
+        sccs_iterator = scc_graph.strongly_connected_components()
+        # 验证返回的是迭代器
+        assert isinstance(sccs_iterator, collections.abc.Iterator)
+
+        # 对结果进行排序以便稳定比较
+        sccs = sorted([sorted(c) for c in sccs_iterator])
+
+        expected_sccs = [
+            ["A", "B", "C"],
+            ["D", "E", "F"],
+            ["G"],
+            ["H"],
+        ]
+        assert sccs == sorted(expected_sccs)
+
+    def test_scc_on_dag(self, simple_directed):
+        """测试在有向无环图 (DAG) 中，每个顶点都是一个独立的 SCC。"""
+        sccs = list(simple_directed.strongly_connected_components())
+        assert len(sccs) == simple_directed.vertex_count
+        assert all(len(c) == 1 for c in sccs)
+        assert {v for c in sccs for v in c} == set(simple_directed.vertices)
+
+    def test_scc_on_empty_graph(self, empty_directed):
+        """测试空图上的 SCC 算法。"""
+        assert list(empty_directed.strongly_connected_components()) == []
+
+    def test_scc_on_single_cycle(self, directed_with_cycle):
+        """测试单个环图的 SCC。"""
+        sccs = list(directed_with_cycle.strongly_connected_components())
+        assert len(sccs) == 1
+        assert sorted(sccs[0]) == ["A", "B", "C"]
+
+    def test_scc_with_self_loops(self, self_loop_graph):
+        """测试包含自环的图的 SCC。"""
+        # A, B, C 形成一个大环，B 和 A 还有自环
+        sccs = sorted([sorted(c) for c in self_loop_graph.strongly_connected_components()])
+        # 整个 {A, B, C} 是一个强连通分量
+        assert sccs == [["A", "B", "C"]]
 
 
 if __name__ == "__main__":
