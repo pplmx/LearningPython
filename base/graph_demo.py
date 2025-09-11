@@ -13,14 +13,14 @@
 
 让我们一起见证，如何用优雅的代码解决复杂的问题。
 """
-import json
+
 import random
 import time
 from dataclasses import dataclass
-from typing import Any, TypeVar, List, Set, Tuple, Union
+from typing import TypeVar, Union
 
 # 导入图的核心类
-from graph import DirectedGraph, UndirectedGraph, Graph, Edge
+from graph import DirectedGraph, Edge, Graph, UndirectedGraph
 
 # 定义类型变量，彰显泛型编程的优雅
 V = TypeVar("V")
@@ -31,12 +31,13 @@ W = TypeVar("W")
 # 用于追踪场景编号的全局计数器 (修正部分)
 SECTION_COUNTER = 0
 
+
 def print_section(title: str, character: str = "=") -> None:
     """打印一个引人注目的章节标题，并自动编号。"""
     global SECTION_COUNTER
     SECTION_COUNTER += 1
 
-    section_titles = ['一', '二', '三', '四', '附']
+    section_titles = ["一", "二", "三", "四", "附"]
     # 确保即使场景数量超过预设，也不会出错
     section_title_index = min(SECTION_COUNTER - 1, len(section_titles) - 1)
     section_name = section_titles[section_title_index]
@@ -50,6 +51,7 @@ def print_section(title: str, character: str = "=") -> None:
 def print_subsection(title: str) -> None:
     """打印一个清晰的子章节标题。"""
     print(f"\n--- {title} ---\n")
+
 
 def visualize_graph(graph: Graph[V, W], title: str) -> None:
     """一个增强版的文本可视化函数，优雅地展示图的结构。"""
@@ -69,11 +71,11 @@ def visualize_graph(graph: Graph[V, W], title: str) -> None:
     print("[i] 结构详情:")
 
     try:
-        vertices: List[V] = sorted(list(graph.vertices), key=str)
+        vertices: list[V] = sorted(list(graph.vertices), key=str)
     except TypeError:
-        vertices: List[V] = list(graph.vertices)
+        vertices: list[V] = list(graph.vertices)
 
-    printed_undirected_edges: Set[Tuple[str, str]] = set()
+    printed_undirected_edges: set[tuple[str, str]] = set()
 
     for u in vertices:
         edges = list(graph.incident_edges(u))
@@ -87,9 +89,9 @@ def visualize_graph(graph: Graph[V, W], title: str) -> None:
             weight_str = f"({edge.weight})" if edge.weight != 1 else ""
 
             if graph.is_directed():
-                if edge.u == u: # 出边
+                if edge.u == u:  # 出边
                     output_lines.append(f"  --{weight_str}--> {edge.v}")
-                elif edge.v == u: # 入边
+                elif edge.v == u:  # 入边
                     output_lines.append(f"  <--{weight_str}-- {edge.u}")
             else:
                 v = edge.v if edge.u == u else edge.u
@@ -104,7 +106,9 @@ def visualize_graph(graph: Graph[V, W], title: str) -> None:
             for line in sorted(output_lines):
                 print(f"    {line}")
 
+
 # ==================== 场景一: 城市配送机器人路径规划 ====================
+
 
 def demo_delivery_robot():
     """
@@ -118,7 +122,7 @@ def demo_delivery_robot():
     print_section("城市配送机器人路径规划")
 
     grid_size = 5
-    city_map = UndirectedGraph[Tuple[int, int], None]()
+    city_map = UndirectedGraph[tuple[int, int], None]()
 
     print(f"[i] 正在构建一个 {grid_size}x{grid_size} 的城市网格地图...")
     for r in range(grid_size):
@@ -150,7 +154,7 @@ def demo_delivery_robot():
             if current == end:
                 return path
 
-            for neighbor in sorted(list(graph.neighbors(current))): # 排序以获得确定性路径
+            for neighbor in sorted(list(graph.neighbors(current))):  # 排序以获得确定性路径
                 if neighbor not in visited:
                     visited.add(neighbor)
                     queue.append((neighbor, path + [neighbor]))
@@ -182,6 +186,7 @@ def demo_delivery_robot():
 
 # ==================== 场景二: 游戏 AI 状态机设计 ====================
 
+
 def demo_game_ai_fsm():
     """
     场景: 设计一个游戏中守卫的 AI 行为逻辑。
@@ -200,7 +205,7 @@ def demo_game_ai_fsm():
     ai_brain.add_edge("调查 (Investigate)", "巡逻 (Patrol)", "未发现异常 (Finds Nothing)")
     ai_brain.add_edge("调查 (Investigate)", "追击 (Chase)", "发现玩家 (Sees Player)")
     ai_brain.add_edge("追击 (Chase)", "巡逻 (Patrol)", "玩家逃脱 (Loses Player)")
-    ai_brain.add_edge("追击 (Chase)", "追击 (Chase)", "持续看到玩家 (Keeps Sight)") # 自循环
+    ai_brain.add_edge("追击 (Chase)", "追击 (Chase)", "持续看到玩家 (Keeps Sight)")  # 自循环
 
     visualize_graph(ai_brain, "守卫 AI 的行为逻辑图")
 
@@ -224,15 +229,22 @@ def demo_game_ai_fsm():
 
 # ==================== 场景三: 社交网络推荐系统基础 ====================
 
+
 @dataclass(frozen=True, eq=True)
 class User:
     name: str
-    def __str__(self) -> str: return f"User({self.name})"
+
+    def __str__(self) -> str:
+        return f"User({self.name})"
+
 
 @dataclass(frozen=True, eq=True)
 class Product:
     title: str
-    def __str__(self) -> str: return f"Product({self.title})"
+
+    def __str__(self) -> str:
+        return f"Product({self.title})"
+
 
 def demo_recommendation_engine():
     """
@@ -254,10 +266,14 @@ def demo_recommendation_engine():
 
     # 用户对商品的评分 (1-5)
     ratings = [
-        (users[0], products[0], 5), (users[0], products[1], 4), # Alice
-        (users[1], products[0], 4), (users[1], products[2], 5), (users[1], products[3], 2), # Bob
-        (users[2], products[1], 5), (users[2], products[3], 4), # Charlie
-        (users[3], products[2], 5), # Diana
+        (users[0], products[0], 5),
+        (users[0], products[1], 4),  # Alice
+        (users[1], products[0], 4),
+        (users[1], products[2], 5),
+        (users[1], products[3], 2),  # Bob
+        (users[2], products[1], 5),
+        (users[2], products[3], 4),  # Charlie
+        (users[3], products[2], 5),  # Diana
     ]
     graph.add_edges(ratings)
 
@@ -276,7 +292,8 @@ def demo_recommendation_engine():
     for liked_product in graph.neighbors(target_user):
         # 2. 找到也喜欢这个商品的其他用户
         for similar_user in graph.neighbors(liked_product):
-            if similar_user == target_user: continue
+            if similar_user == target_user:
+                continue
 
             # 3. 找到这位相似用户喜欢的其他商品
             for recommended_product in graph.neighbors(similar_user):
@@ -293,7 +310,9 @@ def demo_recommendation_engine():
     else:
         print("   - 未找到合适的推荐。")
 
+
 # ==================== 场景四: 计算机网络安全分析 ====================
+
 
 def demo_network_security():
     """
@@ -308,14 +327,22 @@ def demo_network_security():
     network = UndirectedGraph[str, None]()
 
     # 网络拓扑
-    network.add_edges([
-        # 主要办公区 (LAN 1)
-        ("Gateway", "Switch1"), ("Switch1", "PC-Alice"), ("Switch1", "PC-Bob"), ("Switch1", "Printer"),
-        # 服务器区 (LAN 2, 假定通过 Gateway 连接)
-        ("Gateway", "Firewall"), ("Firewall", "WebServer"), ("Firewall", "Database"),
-        # 隔离的访客网络 (Guest WiFi)
-        ("Guest-Router", "Guest-Laptop1"), ("Guest-Router", "Guest-Phone")
-    ])
+    network.add_edges(
+        [
+            # 主要办公区 (LAN 1)
+            ("Gateway", "Switch1"),
+            ("Switch1", "PC-Alice"),
+            ("Switch1", "PC-Bob"),
+            ("Switch1", "Printer"),
+            # 服务器区 (LAN 2, 假定通过 Gateway 连接)
+            ("Gateway", "Firewall"),
+            ("Firewall", "WebServer"),
+            ("Firewall", "Database"),
+            # 隔离的访客网络 (Guest WiFi)
+            ("Guest-Router", "Guest-Laptop1"),
+            ("Guest-Router", "Guest-Phone"),
+        ]
+    )
 
     visualize_graph(network, "办公室网络拓扑图")
 
@@ -349,9 +376,11 @@ def demo_network_security():
     for level, nodes in sorted(spread_levels.items()):
         print(f"   - 第 {level} 波 (从感染源距离为 {level}): {sorted(nodes)}")
 
-    print(f"\n[i] 结论: 攻击无法触及访客网络，证明了网络隔离的有效性。")
+    print("\n[i] 结论: 攻击无法触及访客网络，证明了网络隔离的有效性。")
+
 
 # ==================== 附: 工程健壮性展示 ====================
+
 
 def demo_robustness():
     """展示序列化和不变性等工程特性。"""
@@ -368,7 +397,10 @@ def demo_robustness():
 
     # 从 JSON 恢复图
     restored_g = DirectedGraph.from_json(json_string)
-    print("\n从 JSON 恢复的图是否与原图一致？", "是" if restored_g.has_edge("A", "B") and restored_g.get_edge_weight("A", "B") == 10 else "否")
+    print(
+        "\n从 JSON 恢复的图是否与原图一致？",
+        "是" if restored_g.has_edge("A", "B") and restored_g.get_edge_weight("A", "B") == 10 else "否",
+    )
 
     print_subsection("特性 2: 边的不可变性 (Immutability)")
     print("[i] `Edge` 对象被设计为不可变的 (`frozen=True`)，这能防止意外修改，使代码更安全、更可预测。")
@@ -381,6 +413,7 @@ def demo_robustness():
         print("❌ 边的起点被修改了！(这是不应该发生的)")
     except Exception as e:
         print(f"✅ 尝试修改边的起点失败，并抛出异常: `{type(e).__name__}`。这正是我们期望的！")
+
 
 # =================== 附: Benchmarking ===================
 def demo_performance_benchmark():
@@ -400,7 +433,9 @@ def demo_performance_benchmark():
 
     # 打印表头
     print("\n" + "-" * 90)
-    print(f"{'规模 (V)':<10} | {'顶点数':>10} | {'边数':>10} | {'添加顶点(s)':>14} | {'添加边(s)':>12} | {'DFS遍历(s)':>14} | {'连通分量(s)':>15}")
+    print(
+        f"{'规模 (V)':<10} | {'顶点数':>10} | {'边数':>10} | {'添加顶点(s)':>14} | {'添加边(s)':>12} | {'DFS遍历(s)':>14} | {'连通分量(s)':>15}"
+    )
     print("-" * 90)
 
     for n in sizes:
@@ -437,14 +472,18 @@ def demo_performance_benchmark():
         conn_time = time.perf_counter() - start
 
         # 打印结果行
-        print(f"{n:<10} | {graph.vertex_count:>10,d} | {graph.edge_count:>10,d} | "
-              f"{vertex_time:>14.4f} | {edge_time:>12.4f} | "
-              f"{dfs_time:>14.4f} | {conn_time:>15.4f}")
+        print(
+            f"{n:<10} | {graph.vertex_count:>10,d} | {graph.edge_count:>10,d} | "
+            f"{vertex_time:>14.4f} | {edge_time:>12.4f} | "
+            f"{dfs_time:>14.4f} | {conn_time:>15.4f}"
+        )
     print("-" * 90)
     print("\n[i] 结论：即使在数千个顶点和数万条边的规模下，所有核心操作依然能在毫秒级完成。")
     print("[i] 这证明了底层数据结构 (邻接表) 和算法实现的效率。")
 
+
 # ==================== 主函数 ====================
+
 
 def main() -> None:
     """主函数，按顺序运行所有演示场景。"""
@@ -466,8 +505,10 @@ def main() -> None:
 
     except Exception as e:
         import traceback
+
         print(f"\n❌ 演示过程中发生意外错误: {e}")
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     main()
