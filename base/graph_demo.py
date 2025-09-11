@@ -426,10 +426,10 @@ def demo_performance_benchmark():
     """
     print_section("性能基准测试")
 
-    sizes = [100, 1000, 5000]
+    sizes = [100, 1000, 5000, 100000]
     edge_factor = 5  # 每个顶点平均连接的边数
 
-    print(f"[i] 我们将对三个规模的随机无向图 (V={', '.join(map(str, sizes))}) 进行压力测试。")
+    print(f"[i] 我们将对四个规模的随机无向图 (V={', '.join(map(str, sizes))}) 进行压力测试。")
 
     # 打印表头
     print("\n" + "-" * 90)

@@ -75,6 +75,11 @@ class Graph(ABC, Generic[V, W]):
         """Number of edges in the graph."""
 
     @property
+    @abstractmethod
+    def edges(self) -> Iterator[Edge[V, W]]:
+        """Iterate over all edges in the graph."""
+
+    @property
     def is_empty(self) -> bool:
         """True if graph has no vertices."""
         return len(self._vertices) == 0
@@ -107,6 +112,7 @@ class Graph(ABC, Generic[V, W]):
             return False
 
         # Remove all incident edges before removing vertex
+        # Creating a list is necessary to avoid modifying the graph while iterating
         for edge in list(self.incident_edges(vertex)):
             self.remove_edge(edge.u, edge.v)
 
@@ -159,21 +165,16 @@ class Graph(ABC, Generic[V, W]):
         return edge.weight
 
     def to_dict(self) -> dict[str, Any]:
-        """Serialize graph to dictionary format."""
-        edges_data = []
-        processed_edges = set()
-
-        for vertex in self._vertices:
-            for edge in self.incident_edges(vertex):
-                edge_key = (edge.u, edge.v) if self.is_directed() else tuple(sorted([edge.u, edge.v]))
-                if edge_key not in processed_edges:
-                    edges_data.append({"u": edge.u, "v": edge.v, "weight": edge.weight})
-                    processed_edges.add(edge_key)
-
+        """
+        Serialize graph to dictionary format.
+        OPTIMIZED: This method now uses the `self.edges` property,
+        providing a direct and efficient way to list all edges without
+        complex de-duplication logic.
+        """
         return {
             "type": "directed" if self.is_directed() else "undirected",
             "vertices": list(self._vertices),
-            "edges": edges_data,
+            "edges": [{"u": edge.u, "v": edge.v, "weight": edge.weight} for edge in self.edges],
         }
 
     def to_json(self, **kwargs) -> str:
@@ -187,7 +188,7 @@ class Graph(ABC, Generic[V, W]):
         graph.add_vertices(data["vertices"])
 
         for edge_data in data["edges"]:
-            graph.add_edge(edge_data["u"], edge_data["v"], edge_data.get("weight"))
+            graph.add_edge(edge_data["u"], edge_data["v"], edge_data.get("weight", 1))
 
         return graph
 
@@ -260,8 +261,10 @@ class Graph(ABC, Generic[V, W]):
             visited.add(vertex)
             yield vertex
 
-            # Add neighbors in reverse order for consistent traversal
-            for neighbor in reversed(list(self.neighbors(vertex))):
+            # Add neighbors in reverse to maintain a consistent traversal order
+            # (processing happens in the opposite order of addition to the stack)
+            neighbors_list = list(self.neighbors(vertex))
+            for neighbor in reversed(neighbors_list):
                 if neighbor not in visited:
                     stack.append(neighbor)
 
@@ -305,10 +308,20 @@ class Graph(ABC, Generic[V, W]):
                 yield list(self.dfs(vertex, visited))
 
     def is_connected(self) -> bool:
-        """True if graph is connected (single component)."""
-        if self.is_empty:
+        """
+        True if graph is connected (single component).
+        OPTIMIZED: This now performs a single traversal from an arbitrary
+        start node and compares the count of visited nodes with the total
+        number of vertices, avoiding the expensive computation of all
+        connected components.
+        """
+        if self.vertex_count < 2:
             return True
-        return len(list(self.connected_components())) <= 1
+
+        start_node = next(iter(self._vertices))
+        visited_count = sum(1 for _ in self.dfs(start_node))
+
+        return visited_count == self.vertex_count
 
     def has_path(self, start: V, end: V) -> bool:
         """True if path exists between vertices."""
@@ -362,6 +375,11 @@ class UndirectedGraph(Graph[V, W]):
     def edge_count(self) -> int:
         return len(self._edges)
 
+    @property
+    def edges(self) -> Iterator[Edge[V, W]]:
+        """Iterate over all edges in the graph."""
+        return iter(self._edges.values())
+
     def _on_vertex_added(self, vertex: V) -> None:
         self._adjacency.setdefault(vertex, set())
 
@@ -385,10 +403,15 @@ class UndirectedGraph(Graph[V, W]):
         return iter(self._adjacency.get(vertex, set()))
 
     def incident_edges(self, vertex: V) -> Iterator[Edge[V, W]]:
-        """Iterate over edges connected to vertex."""
-        vertex_set = {vertex}
-        for edge_key, edge in self._edges.items():
-            if edge_key & vertex_set:  # Intersection check
+        """
+        Iterate over edges connected to vertex.
+        OPTIMIZED: This implementation now uses the adjacency list for an
+        O(degree(vertex)) complexity, a significant improvement from the
+        previous O(E) complexity which scanned all edges in the graph.
+        """
+        for neighbor in self._adjacency.get(vertex, set()):
+            edge = self.get_edge(vertex, neighbor)
+            if edge:  # Should always exist if data structures are consistent
                 yield edge
 
     def get_edge(self, u: V, v: V) -> Edge[V, W] | None:
@@ -427,6 +450,11 @@ class DirectedGraph(Graph[V, W]):
     @property
     def edge_count(self) -> int:
         return len(self._edges)
+
+    @property
+    def edges(self) -> Iterator[Edge[V, W]]:
+        """Iterate over all edges in the graph."""
+        return iter(self._edges.values())
 
     def _on_vertex_added(self, vertex: V) -> None:
         self._successors.setdefault(vertex, set())
@@ -580,7 +608,7 @@ class DirectedGraph(Graph[V, W]):
         """Return new graph with all edges reversed."""
         reversed_graph = DirectedGraph[V, W]()
         reversed_graph.add_vertices(self._vertices)
-        for edge in self._edges.values():
+        for edge in self.edges:
             reversed_graph.add_edge(edge.v, edge.u, edge.weight)
         return reversed_graph
 
@@ -619,6 +647,9 @@ def demo() -> None:
     print(f"Alice's degree: {ug.degree('Alice')}")
     print(f"Is connected: {ug.is_connected()}")
 
+    # Test serialization
+    print(f"Serialized (JSON): {ug.to_json(indent=2)}")
+
     # Directed graph example
     print("\n--- Directed Graph (Task Dependencies) ---")
     dg = DirectedGraph[str, int]()
@@ -648,7 +679,7 @@ def demo() -> None:
     scc_graph.add_vertex(8)  # Add a disconnected vertex
     print(f"SCC Graph: {scc_graph}")
 
-    # Using the new iterative method
+    # Using the iterative method
     components = list(scc_graph.strongly_connected_components())
     print(f"Strongly connected components (iterative): {components}")
 
